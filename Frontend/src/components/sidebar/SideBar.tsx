@@ -58,7 +58,7 @@ const SideBar = () => {
           {/* Logo Section */}
           <div className="mb-6 mt-12 md:mt-0">
             <Link
-              to="/"
+              to="/home"
               className="flex items-center gap-2 group"
               onClick={() => setIsOpen(false)}
             >
