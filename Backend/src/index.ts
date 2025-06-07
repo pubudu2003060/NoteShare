@@ -1,15 +1,24 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import dotenv from "dotenv";
-
-const app = express();
+import mongoose from "mongoose";
 
 dotenv.config();
+
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello from Express with TypeScript!");
+const dbUri = process.env.DB_URI;
+if (!dbUri) {
+  throw new Error("DB_URI environment variable is not defined");
+}
+await mongoose.connect(dbUri).then(() => {
+  console.log("✅ Connected to MongoDB");
+});
+
+app.get("/", (req, res) => {
+  res.send("Hello TypeScript + ESM + Express!");
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });
