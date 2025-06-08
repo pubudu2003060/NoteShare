@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import logo from "../assets/logo/logo.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { freeAxios } from "../api/Axios";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -9,10 +11,11 @@ const SignUp = () => {
     username: "",
     email: "",
     password: "",
-    confirmPassword: "",
     age: "",
     grade: "",
   });
+
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleChange = (e) => {
     setFormData({
@@ -21,9 +24,80 @@ const SignUp = () => {
     });
   };
 
+  const navigate = useNavigate();
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+
+    if (formData.password !== confirmPassword) {
+      toast.error("Passwords do not match", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+      return;
+    }
+
+    freeAxios
+      .post("/user/signup", formData)
+      .then((responce) => {
+        if (responce.data.success) {
+          const token = responce.data.token;
+          localStorage.setItem("token", token);
+
+          toast.success(responce.data.message, {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+
+          navigate("/home");
+        } else {
+          toast.error(responce.data.message, {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        }
+
+        setFormData({
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          age: "",
+          grade: "",
+        });
+        setConfirmPassword("");
+      })
+      .catch((error) => {
+        console.error("Error during sign up:", error);
+        toast.error("Sign Up Failed", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      });
   };
 
   return (
@@ -154,8 +228,8 @@ const SignUp = () => {
                       type={showPassword ? "text" : "password"}
                       id="confirmPassword"
                       name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       placeholder="Confirm your password"
                       className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 outline-none transition-colors bg-white dark:bg-slate-700 text-slate-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-slate-400"
@@ -187,14 +261,17 @@ const SignUp = () => {
                       id="age"
                       name="age"
                       value={formData.age}
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        if (e.target.value >= 0 && e.target.value <= 80)
+                          handleChange(e);
+                      }}
                       required
+                      min={1}
+                      max={80}
                       placeholder="Enter your Age"
                       className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 outline-none transition-colors bg-white dark:bg-slate-700 text-slate-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-slate-400"
                     />
                   </div>
-
-                  {/* Grade Field */}
                   <div className="flex-1">
                     <label
                       htmlFor="grade"

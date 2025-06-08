@@ -15,6 +15,21 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    age: {
+      type: Number,
+      required: true,
+    },
+    grade: {
+      type: String,
+      required: true,
+      enum: [
+        "primaryschool",
+        "highschool",
+        "undergraduate",
+        "postgraduate",
+        "other",
+      ],
+    },
   },
   {
     timestamps: true,

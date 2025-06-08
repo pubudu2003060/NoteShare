@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import logo from "../assets/logo/logo.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { freeAxios } from "../api/Axios";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,9 +19,61 @@ const SignIn = () => {
     });
   };
 
+  const navigate = useNavigate();
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+
+    freeAxios
+      .post("/user/signin", formData)
+      .then((responce) => {
+        if (responce.data.success) {
+          const token = responce.data.token;
+          localStorage.setItem("token", token);
+
+          toast.success(responce.data.message, {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+
+          navigate("/home");
+        } else {
+          toast.error(responce.data.message, {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        }
+
+        setFormData({
+          email: "",
+          password: "",
+        });
+      })
+      .catch((error) => {
+        console.error("Error during sign In:", error);
+        toast.error("Sign In Failed", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      });
   };
 
   return (
