@@ -12,23 +12,36 @@ import SignIn from "./screens/SignIn";
 import SignUp from "./screens/SignUp";
 
 const App = () => {
+  function toggleDarkMode() {
+    const html = document.documentElement;
+    html.classList.toggle("dark");
+  }
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/home" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="mygroups" element={<MyGroups />} />
-          <Route path="publicgroups" element={<PublicGroups />} />
-          <Route path="privategroups" element={<PrivateGroups />} />
-          <Route path="stared" element={<Stared />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="about" element={<About />} />
-        </Route>
-        <Route path="*" element={<NoPage />} />
-      </Routes>
-    </BrowserRouter>
+    <>
+      {/*  <button
+        onClick={toggleDarkMode}
+        className="position-absolute p-2 rounded bg-primary text-white dark:bg-blue-400"
+      >
+        Toggle Dark Mode
+      </button>*/}
+      <BrowserRouter>
+        <Routes>
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/home" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="mygroups" element={<MyGroups />} />
+            <Route path="publicgroups" element={<PublicGroups />} />
+            <Route path="privategroups" element={<PrivateGroups />} />
+            <Route path="stared" element={<Stared />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="about" element={<About />} />
+          </Route>
+          <Route path="*" element={<NoPage />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 };
 
