@@ -5,6 +5,7 @@ const Home = () => {
     JWTAxios.get("/user/test")
       .then((response) => {
         console.log(response.data.message);
+        alert(response.data.message);
       })
       .catch((error) => {
         console.error("Error fetching test route:", error);

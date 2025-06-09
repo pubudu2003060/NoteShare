@@ -11,21 +11,12 @@ import Layout from "./components/layout/Layout";
 import SignIn from "./screens/SignIn";
 import SignUp from "./screens/SignUp";
 import { ToastContainer } from "react-toastify";
+import DarkModeToggle from "./components/modetoggler/DarkModeToggler";
 
 const App = () => {
-  function toggleDarkMode() {
-    const html = document.documentElement;
-    html.classList.toggle("dark");
-  }
-
   return (
     <>
-      {/*  <button
-        onClick={toggleDarkMode}
-        className="position-absolute p-2 rounded bg-primary text-white dark:bg-blue-400"
-      >
-        Toggle Dark Mode
-      </button>*/}
+      <DarkModeToggle />
       <BrowserRouter>
         <Routes>
           <Route path="/signup" element={<SignUp />} />
