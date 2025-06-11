@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Users, FileText, Filter } from "lucide-react";
 import HomeCard from "../components/home/HomeCard";
 import logo from "../assets/logo/logo.jpg";
@@ -97,48 +97,48 @@ const Home = () => {
     setFilteredData(filtered);
   };
 
-  useState(() => {
+  useEffect(() => {
     filterData();
   }, [searchTerm, showGroups, showNotes]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    filterData();
   };
 
   const handleGroupsChange = (e) => {
     setShowGroups(e.target.checked);
-    setTimeout(filterData, 0);
   };
 
   const handleNotesChange = (e) => {
     setShowNotes(e.target.checked);
-    setTimeout(filterData, 0);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 md:p-6 ">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className=" rounded-xl  p-6 mb-6 ">
-          <div className="flex flex-col items-center justify-center gap-4 mb-6">
-            <img
-              src={logo}
-              alt="logo of the note share platform"
-              className="w-16 h-16 rounded-xl shadow-md"
-            />
-            <div>
-              <h1 className="text-3xl text-center font-bold text-gray-800 dark:text-white">
+        {/* Header - Keeping your centered layout */}
+        <div className="rounded-xl p-6 mb-8">
+          {/* Logo and Title Section - Enhanced spacing */}
+          <div className="flex flex-col items-center justify-center gap-4 mb-8">
+            <div className="relative">
+              <img
+                src={logo}
+                alt="logo of the note share platform"
+                className="w-20 h-20 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+              />
+            </div>
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
                 NoteShare
               </h1>
-              <p className="text-center text-gray-600 dark:text-slate-400">
+              <p className="text-lg text-gray-600 dark:text-slate-400 font-medium">
                 Discover and share knowledge
               </p>
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative mb-6 flex m-auto w-75 md:w-3xl">
+          {/* Search Bar - Improved responsive width */}
+          <div className="relative mb-8 max-w-2xl mx-auto">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
@@ -149,52 +149,63 @@ const Home = () => {
               value={searchTerm}
               onChange={handleSearchChange}
               placeholder="Search groups and notes..."
-              className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-slate-400 transition-colors"
+              className="w-full pl-12 pr-4 py-4 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-slate-400 transition-all duration-300 shadow-sm hover:shadow-md"
             />
           </div>
 
-          {/* Filters */}
-          <div className="flex m-auto justify-center items-center gap-6">
+          {/* Filters - Enhanced styling while keeping your layout */}
+          <div className="flex flex-wrap flex-col md:flex-row justify-center items-start md:items-center gap-3 md:gap-6 bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-700">
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-500 dark:text-slate-400" />
-              <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
+              <Filter className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-semibold text-gray-700 dark:text-slate-300">
                 Show:
               </span>
             </div>
 
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 px-3 py-2 rounded-lg transition-colors">
               <input
                 type="checkbox"
                 checked={showGroups}
                 onChange={handleGroupsChange}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 transition-colors"
               />
-              <span className="text-sm font-medium text-gray-700 dark:text-slate-300 flex items-center gap-1">
-                <Users size={16} />
+              <span className="text-sm font-medium text-gray-700 dark:text-slate-300 flex items-center gap-2">
+                <Users size={16} className="text-blue-600" />
                 Groups
               </span>
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 px-3 py-2 rounded-lg transition-colors">
               <input
                 type="checkbox"
                 checked={showNotes}
                 onChange={handleNotesChange}
-                className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 transition-colors"
               />
-              <span className="text-sm font-medium text-gray-700 dark:text-slate-300 flex items-center gap-1">
-                <FileText size={16} />
+              <span className="text-sm font-medium text-gray-700 dark:text-slate-300 flex items-center gap-2">
+                <FileText size={16} className="text-green-600" />
                 Notes
               </span>
             </label>
           </div>
         </div>
 
-        {/* Results */}
-        <div className="mb-4">
-          <p className="text-gray-600 dark:text-slate-400">
-            Showing {filteredData.length} results
-          </p>
+        {/* Results - Enhanced styling */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <p className="text-gray-600 dark:text-slate-400 font-medium">
+              Showing{" "}
+              <span className="text-blue-600 dark:text-blue-400 font-bold">
+                {filteredData.length}
+              </span>{" "}
+              results
+            </p>
+            <div className="text-sm text-gray-500 dark:text-slate-500">
+              {filteredData.filter((item) => item.type === "group").length}{" "}
+              groups •{" "}
+              {filteredData.filter((item) => item.type === "note").length} notes
+            </div>
+          </div>
         </div>
 
         {/* Cards Grid */}
@@ -204,18 +215,34 @@ const Home = () => {
           ))}
         </div>
 
-        {/* No Results */}
+        {/* No Results - Enhanced styling */}
         {filteredData.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 dark:text-slate-500 mb-4">
-              <Search size={48} className="mx-auto" />
+          <div className="text-center py-16">
+            <div className="text-gray-300 dark:text-slate-600 mb-6">
+              <Search size={64} className="mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
               No results found
             </h3>
-            <p className="text-gray-500 dark:text-slate-400">
-              Try adjusting your search terms or filters
+            <p className="text-gray-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
+              We couldn't find any{" "}
+              {!showGroups
+                ? "notes"
+                : !showNotes
+                ? "groups"
+                : "groups or notes"}{" "}
+              matching your search.
             </p>
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setShowGroups(true);
+                setShowNotes(true);
+              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+            >
+              Clear filters
+            </button>
           </div>
         )}
       </div>
