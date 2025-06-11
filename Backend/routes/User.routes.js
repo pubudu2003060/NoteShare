@@ -1,22 +1,15 @@
 import express from "express";
-import {
-  addUser,
-  deleteUser,
-  getUserById,
-  getUsers,
-  updateUser,
-} from "../controllers/User.controller.js";
+import { signInUser, signUpUser } from "../controllers/User.controller.js";
+import { verifyToken } from "../middleware/JwtVerify.js";
 
 const userRouter = express.Router();
 
-userRouter.post("/adduser", addUser);
+userRouter.post("/signup", signUpUser);
 
-userRouter.get("/getusers", getUsers);
+userRouter.post("/signin", signInUser);
 
-userRouter.get("/getuser/:id", getUserById);
-
-userRouter.put("/updateuser/:id", updateUser);
-
-userRouter.delete("/deleteuser/:id", deleteUser);
+userRouter.get("/test", verifyToken, (req, res) => {
+  res.status(200).json({ message: "Test route is working" });
+});
 
 export default userRouter;

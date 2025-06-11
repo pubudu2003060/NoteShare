@@ -2,10 +2,18 @@ import express from "express";
 import dotenv from "dotenv";
 import { connectDb } from "./config/DBConnection.js";
 import userRouter from "./routes/User.routes.js";
+import cors from "cors";
 
 const app = express();
 
 dotenv.config();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
