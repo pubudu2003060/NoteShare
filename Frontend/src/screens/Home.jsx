@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Search, Users, FileText, Filter } from "lucide-react";
 import HomeCard from "../components/home/HomeCard";
+import logo from "../assets/logo/logo.jpg";
 
-// Sample data
 const sampleGroups = [
   {
     id: 1,
@@ -72,14 +72,12 @@ const sampleGroups = [
   },
 ];
 
-// Main Home Component
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showGroups, setShowGroups] = useState(true);
   const [showNotes, setShowNotes] = useState(true);
   const [filteredData, setFilteredData] = useState(sampleGroups);
 
-  // Filter data based on search and checkboxes
   const filterData = () => {
     let filtered = sampleGroups.filter((item) => {
       const matchesSearch =
@@ -99,7 +97,6 @@ const Home = () => {
     setFilteredData(filtered);
   };
 
-  // Update filters when search or checkboxes change
   useState(() => {
     filterData();
   }, [searchTerm, showGroups, showNotes]);
@@ -120,28 +117,28 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 md:p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 md:p-6 ">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 mb-6 border border-gray-100 dark:border-slate-700">
-          <div className="flex items-center gap-4 mb-6">
+        <div className=" rounded-xl  p-6 mb-6 ">
+          <div className="flex flex-col items-center justify-center gap-4 mb-6">
             <img
-              src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=64&h=64&fit=crop&crop=center"
+              src={logo}
               alt="logo of the note share platform"
               className="w-16 h-16 rounded-xl shadow-md"
             />
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+              <h1 className="text-3xl text-center font-bold text-gray-800 dark:text-white">
                 NoteShare
               </h1>
-              <p className="text-gray-600 dark:text-slate-400">
+              <p className="text-center text-gray-600 dark:text-slate-400">
                 Discover and share knowledge
               </p>
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="relative mb-6">
+          <div className="relative mb-6 flex m-auto w-75 md:w-3xl">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
@@ -157,7 +154,7 @@ const Home = () => {
           </div>
 
           {/* Filters */}
-          <div className="flex items-center gap-6">
+          <div className="flex m-auto justify-center items-center gap-6">
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-gray-500 dark:text-slate-400" />
               <span className="text-sm font-medium text-gray-700 dark:text-slate-300">

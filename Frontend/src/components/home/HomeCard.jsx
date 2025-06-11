@@ -1,6 +1,5 @@
-import { Search, Users, FileText, Filter } from "lucide-react";
+import { Users, FileText } from "lucide-react";
 
-// HomeCard Component
 const HomeCard = ({ item }) => {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-100 dark:border-slate-700">
