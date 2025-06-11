@@ -32,7 +32,7 @@ export const signUpUser = async (req, res) => {
       success: true,
       token,
       message: "User SignUp Successfully",
-      newUser,
+      user: newUser,
     });
   } catch (error) {
     console.error("Error creating user:", error);

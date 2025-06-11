@@ -30,6 +30,8 @@ const SignIn = () => {
         if (responce.data.success) {
           const token = responce.data.token;
           localStorage.setItem("token", token);
+          const user = responce.data.user;
+          localStorage.setItem("user", JSON.stringify(user));
 
           toast.success(responce.data.message, {
             position: "top-center",

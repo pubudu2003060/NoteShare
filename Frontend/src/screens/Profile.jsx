@@ -6,6 +6,7 @@ const Profile = () => {
 
   const signout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/signin");
   };
   return (

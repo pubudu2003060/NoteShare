@@ -124,7 +124,7 @@ const SideBar = () => {
             >
               <User className="w-4 h-4" />
               <span className="hidden sm:block md:block">Profile</span>
-              <span className="block sm:hidden md:hidden text-xs">Me</span>
+              <span className="block sm:hidden md:hidden text-xs">Profile</span>
             </Link>
             <Link
               to="about"
