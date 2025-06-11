@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Search, Users, FileText, Filter } from "lucide-react";
-import HomeCard from "../components/home/HomeCard";
-import logo from "../assets/logo/logo.jpg";
+import logo from "../../assets/logo/logo.jpg";
+import { Link } from "react-router-dom";
+import HomeCard from "../../components/card/HomeCard";
 
 const sampleGroups = [
   {
@@ -121,15 +122,18 @@ const Home = () => {
           {/* Logo and Title Section - Enhanced spacing */}
           <div className="flex flex-col items-center justify-center gap-4 mb-8">
             <div className="relative">
-              <img
-                src={logo}
-                alt="logo of the note share platform"
-                className="w-20 h-20 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-              />
+              <Link to="/home">
+                {" "}
+                <img
+                  src={logo}
+                  alt="logo of the note share platform"
+                  className="w-20 h-20 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+                />
+              </Link>
             </div>
             <div className="text-center">
               <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                NoteShare
+                <Link to="/home">NoteShare</Link>
               </h1>
               <p className="text-lg text-gray-600 dark:text-slate-400 font-medium">
                 Discover and share knowledge
@@ -233,16 +237,6 @@ const Home = () => {
                 : "groups or notes"}{" "}
               matching your search.
             </p>
-            <button
-              onClick={() => {
-                setSearchTerm("");
-                setShowGroups(true);
-                setShowNotes(true);
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-            >
-              Clear filters
-            </button>
           </div>
         )}
       </div>

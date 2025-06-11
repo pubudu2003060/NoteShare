@@ -1,7 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./screens/Home";
 import NoPage from "./screens/NoPage";
-import MyGroups from "./screens/MyGroups";
 import PublicGroups from "./screens/PublicGroups";
 import PrivateGroups from "./screens/PrivateGroups";
 import Stared from "./screens/Stared";
@@ -12,6 +10,8 @@ import SignIn from "./screens/SignIn";
 import SignUp from "./screens/SignUp";
 import { ToastContainer } from "react-toastify";
 import DarkModeToggle from "./components/modetoggler/DarkModeToggler";
+import Home from "./screens/home/Home";
+import MyGroups from "./screens/mygroups/MyGroups";
 
 const App = () => {
   return (

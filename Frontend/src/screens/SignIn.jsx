@@ -185,7 +185,7 @@ const SignIn = () => {
       {/* Left section  */}
       <div className="w-full lg:w-1/2 bg-blue-600 dark:bg-slate-800 flex flex-col justify-center items-center p-6 lg:p-12 min-h-[200px] lg:min-h-screen order-1 lg:order-2">
         <div className="text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white dark:text-gray-100 mb-4 lg:mb-6">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent pb-3 mb-4 lg:mb-6">
             Sign In
           </h1>
           <div className="w-24 lg:w-32 h-1 bg-white dark:bg-blue-400 mx-auto mb-4 lg:mb-6"></div>
