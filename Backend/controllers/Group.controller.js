@@ -10,7 +10,10 @@ export const searchGroups = async (req, res) => {
       groups = await Group.aggregate([{ $sample: { size: 20 } }]);
     } else {
       groups = await Group.find({
-        name: { $regex: keyword, $options: "i" },
+        $or: [
+          { name: { $regex: keyword, $options: "i" } },
+          { tags: { $regex: keyword, $options: "i" } },
+        ],
       }).populate("members", "_id");
     }
 

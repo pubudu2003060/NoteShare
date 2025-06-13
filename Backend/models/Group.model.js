@@ -16,7 +16,6 @@ const groupSchema = mongoose.Schema(
     },
     tags: {
       type: [String],
-      required: true,
     },
     isPrivate: {
       type: Boolean,

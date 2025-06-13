@@ -2,17 +2,25 @@ import { Plus, X, Upload, Users } from "lucide-react";
 import Card from "../../components/card/Card";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const MyGroups = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
+
+  const storedAdmin = localStorage.getItem("user");
+  const admin = JSON.parse(storedAdmin);
+  const adminId = admin._id;
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     photo: null,
-    tags: "",
-    subject: "",
-    status: "",
+    tags: [],
+    isprivate: false,
+    admin: adminId,
   });
+
+  const [tagInput, setTagInput] = useState("");
 
   const sampleGroups = [
     {
@@ -92,9 +100,62 @@ const MyGroups = () => {
 
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
+
+    if (name === "photo" && files) {
+      const file = files[0];
+
+      if (file && file.type.startsWith("image/")) {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: file,
+        }));
+      } else {
+        e.target.value = "";
+        toast.error("Please select an image file only.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleTagInputChange = (e) => {
+    setTagInput(e.target.value);
+  };
+
+  const handleTagKeyPress = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag();
+    }
+  };
+
+  const addTag = () => {
+    const trimmedTag = tagInput.trim();
+    if (trimmedTag && !formData.tags.includes(trimmedTag)) {
+      setFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, trimmedTag],
+      }));
+      setTagInput("");
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value,
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
@@ -107,10 +168,11 @@ const MyGroups = () => {
       name: "",
       description: "",
       photo: null,
-      tags: "",
-      subject: "",
-      status: "private",
+      tags: [],
+      isprivate: false,
+      admin: adminId,
     });
+    setTagInput("");
     setShowCreateForm(false);
   };
 
@@ -119,10 +181,11 @@ const MyGroups = () => {
       name: "",
       description: "",
       photo: null,
-      tags: "",
-      subject: "",
-      status: "private",
+      tags: [],
+      isprivate: false,
+      admin: adminId,
     });
+    setTagInput("");
     setShowCreateForm(false);
   };
 
@@ -286,63 +349,67 @@ const MyGroups = () => {
                     <span className="text-gray-600 dark:text-slate-400">
                       {formData.photo
                         ? formData.photo.name
-                        : "Upload group photo"}
+                        : "Upload group photo (images only)"}
                     </span>
                   </label>
                 </div>
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                  Supported formats: JPG, PNG, GIF, WebP
+                </p>
               </div>
 
-              {/* Tags and Subject Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Tags */}
-                <div>
-                  <label
-                    htmlFor="tags"
-                    className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2"
-                  >
-                    Category *
-                  </label>
-                  <select
-                    name="tags"
-                    id="tags"
-                    value={formData.tags}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 outline-none transition-colors bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-                  >
-                    <option value="">Select category</option>
-                    <option value="lecturenotes">Lecture Notes</option>
-                    <option value="pastpapers">Past Papers</option>
-                    <option value="summary">Summary</option>
-                    <option value="examtip">Exam Tips</option>
-                  </select>
-                </div>
+              {/* Tags */}
+              <div>
+                <label
+                  htmlFor="tagInput"
+                  className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2"
+                >
+                  Tags
+                </label>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      id="tagInput"
+                      value={tagInput}
+                      onChange={handleTagInputChange}
+                      onKeyPress={handleTagKeyPress}
+                      placeholder="Add tags (press Enter or comma to add)"
+                      className="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 outline-none transition-colors bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-slate-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={addTag}
+                      className="px-4 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+                    >
+                      Add
+                    </button>
+                  </div>
 
-                {/* Subject */}
-                <div>
-                  <label
-                    htmlFor="subject"
-                    className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2"
-                  >
-                    Subject *
-                  </label>
-                  <select
-                    name="subject"
-                    id="subject"
-                    value={formData.subject}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 outline-none transition-colors bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-                  >
-                    <option value="">Select subject</option>
-                    <option value="science">Science</option>
-                    <option value="maths">Mathematics</option>
-                    <option value="biology">Biology</option>
-                    <option value="chemistry">Chemistry</option>
-                    <option value="agriculture">Agriculture</option>
-                    <option value="computer-science">Computer Science</option>
-                  </select>
+                  {/* Display Tags */}
+                  {formData.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => removeTag(tag)}
+                            className="hover:text-blue-600 dark:hover:text-blue-200 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                  Add relevant tags to help others discover your group
+                </p>
               </div>
 
               {/* Status */}
@@ -354,21 +421,22 @@ const MyGroups = () => {
                   Privacy Setting *
                 </label>
                 <select
-                  name="status"
-                  id="status"
-                  value={formData.status}
+                  name="isprivate"
+                  id="isprivate"
+                  value={formData.isprivate}
                   onChange={handleInputChange}
                   required
                   className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 outline-none transition-colors bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                 >
-                  <option value="">Select status</option>
-                  <option value="private">Private</option>
-                  <option value="public">Public</option>
+                  <option value={true}>Private</option>
+                  <option value={false}>Public</option>
                 </select>
                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                   {formData.status === "private"
                     ? "Only invited members can join this group"
-                    : "Anyone can discover and join this group"}
+                    : formData.status === "public"
+                    ? "Anyone can discover and join this group"
+                    : "Choose who can access your group"}
                 </p>
               </div>
 
