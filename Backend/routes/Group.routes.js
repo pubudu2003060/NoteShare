@@ -1,9 +1,23 @@
 import express from "express";
-import { searchGroups } from "../controllers/Group.controller.js";
+import {
+  createGroup,
+  getMyGroups,
+  searchGroups,
+} from "../controllers/Group.controller.js";
 import { verifyAccessToken } from "../middleware/JwtVerify.js";
+import { upload } from "../config/multer.js";
 
 const groupRouter = express.Router();
 
 groupRouter.get("/searchgroups", verifyAccessToken, searchGroups);
+
+groupRouter.post("/getmygroups", verifyAccessToken, getMyGroups);
+
+groupRouter.post(
+  "/creategroup",
+  verifyAccessToken,
+  upload.single("photo"),
+  createGroup
+);
 
 export default groupRouter;
