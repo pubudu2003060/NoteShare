@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import { connectDb } from "./config/DBConnection.js";
 import userRouter from "./routes/User.routes.js";
 import cors from "cors";
+import noteRouter from "./routes/Note.routes.js";
+import groupRouter from "./routes/Group.routes.js";
 
 const app = express();
 
@@ -18,6 +20,10 @@ app.use(
 app.use(express.json());
 
 app.use("/api/user", userRouter);
+
+app.use("/api/note", noteRouter);
+
+app.use("/api/group", groupRouter);
 
 const PORT = process.env.PORT || 3000;
 
