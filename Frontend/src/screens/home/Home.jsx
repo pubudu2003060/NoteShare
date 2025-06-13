@@ -1,118 +1,84 @@
 import { useState, useEffect } from "react";
-import { Search, Users, FileText, Filter } from "lucide-react";
+import { Search, Users, Lock, Filter } from "lucide-react";
 import logo from "../../assets/logo/logo.jpg";
 import { Link } from "react-router-dom";
-import HomeCard from "../../components/card/HomeCard";
-
-const sampleGroups = [
-  {
-    id: 1,
-    name: "Computer Science Study Group",
-    image:
-      "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=300&h=200&fit=crop",
-    description:
-      "A collaborative space for CS students to share algorithms, data structures, and programming concepts.",
-    tags: ["Programming", "Algorithms", "Data Structures", "Computer Science"],
-    type: "group",
-    members: 156,
-  },
-  {
-    id: 2,
-    name: "Mathematics Notes Hub",
-    image:
-      "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&h=200&fit=crop",
-    description:
-      "Advanced calculus, linear algebra, and statistics notes shared by university students.",
-    tags: ["Mathematics", "Calculus", "Statistics", "Linear Algebra"],
-    type: "group",
-    members: 89,
-  },
-  {
-    id: 3,
-    name: "React Hooks Deep Dive",
-    image:
-      "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=200&fit=crop",
-    description:
-      "Comprehensive notes on React hooks with practical examples and best practices.",
-    tags: ["React", "JavaScript", "Hooks", "Frontend"],
-    type: "note",
-    author: "Sarah Chen",
-  },
-  {
-    id: 4,
-    name: "Physics Laboratory Group",
-    image:
-      "https://images.unsplash.com/photo-1554475901-4538ddfbccc2?w=300&h=200&fit=crop",
-    description:
-      "Share experimental procedures, lab reports, and physics problem solutions.",
-    tags: ["Physics", "Laboratory", "Experiments", "Science"],
-    type: "group",
-    members: 73,
-  },
-  {
-    id: 5,
-    name: "Python Data Science Guide",
-    image:
-      "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=300&h=200&fit=crop",
-    description:
-      "Complete guide to data science with Python including pandas, numpy, and matplotlib examples.",
-    tags: ["Python", "Data Science", "Machine Learning", "Analytics"],
-    type: "note",
-    author: "Alex Kumar",
-  },
-  {
-    id: 6,
-    name: "History Study Circle",
-    image:
-      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=200&fit=crop",
-    description:
-      "Discussing world history, sharing research papers and historical analysis.",
-    tags: ["History", "Research", "World History", "Analysis"],
-    type: "group",
-    members: 124,
-  },
-];
+import { JWTAxios } from "../../api/Axios";
+import Card from "../../components/card/Card";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [showGroups, setShowGroups] = useState(true);
-  const [showNotes, setShowNotes] = useState(true);
-  const [filteredData, setFilteredData] = useState(sampleGroups);
+  const [searchKeyword, setSearchKeyword] = useState(""); // New state for actual search
+  const [showPublic, setShowPublic] = useState(true);
+  const [showPrivate, setShowPrivate] = useState(true);
+  const [filteredData, setFilteredData] = useState([]);
+  const [allGroups, setAllGroups] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const filterData = () => {
-    let filtered = sampleGroups.filter((item) => {
-      const matchesSearch =
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.tags.some((tag) =>
-          tag.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+  // Fetch data from backend based on searchKeyword
+  const fetchGroups = async () => {
+    setIsLoading(true);
+    try {
+      const response = await JWTAxios.get(
+        `/group/searchgroups/${searchKeyword}`
+      );
 
+      if (response.data.success) {
+        setAllGroups(response.data.groups); // raw data from backend
+      } else {
+        console.log("Could not fetch group data");
+      }
+    } catch (error) {
+      console.error("Error fetching groups:", error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // This effect runs whenever searchKeyword changes (actual search trigger)
+  useEffect(() => {
+    fetchGroups();
+  }, [searchKeyword]);
+
+  // Filter by public/private (frontend only)
+  useEffect(() => {
+    const filtered = allGroups.filter((item) => {
       const matchesType =
-        (showGroups && item.type === "group") ||
-        (showNotes && item.type === "note");
-
-      return matchesSearch && matchesType;
+        (showPublic && !item.isPrivate) || (showPrivate && item.isPrivate);
+      return matchesType;
     });
 
     setFilteredData(filtered);
-  };
+  }, [showPublic, showPrivate, allGroups]);
 
-  useEffect(() => {
-    filterData();
-  }, [searchTerm, showGroups, showNotes]);
-
+  // Handle search input change (just updates the input value)
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const handleGroupsChange = (e) => {
-    setShowGroups(e.target.checked);
+  // Handle search execution
+  const handleSearch = () => {
+    setSearchKeyword(searchTerm);
   };
 
-  const handleNotesChange = (e) => {
-    setShowNotes(e.target.checked);
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
+
+  const handlePublicChange = (e) => {
+    setShowPublic(e.target.checked);
+  };
+
+  const handlePrivateChange = (e) => {
+    setShowPrivate(e.target.checked);
+  };
+
+  // Load initial data on component mount
+  useEffect(() => {
+    setSearchKeyword(""); // This will trigger fetchGroups with empty string (random groups)
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 md:p-6">
@@ -123,7 +89,6 @@ const Home = () => {
           <div className="flex flex-col items-center justify-center gap-4 mb-8">
             <div className="relative">
               <Link to="/home">
-                {" "}
                 <img
                   src={logo}
                   alt="logo of the note share platform"
@@ -152,9 +117,21 @@ const Home = () => {
               id="search"
               value={searchTerm}
               onChange={handleSearchChange}
-              placeholder="Search groups and notes..."
-              className="w-full pl-12 pr-4 py-4 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-slate-400 transition-all duration-300 shadow-sm hover:shadow-md"
+              onKeyPress={handleKeyPress}
+              placeholder="Search groups..."
+              className="w-full pl-12 pr-16 py-4 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-slate-400 transition-all duration-300 shadow-sm hover:shadow-md"
             />
+            <button
+              onClick={handleSearch}
+              disabled={isLoading}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <Search className="h-5 w-5 text-blue-600 hover:text-blue-700 cursor-pointer transition-colors" />
+              )}
+            </button>
           </div>
 
           {/* Filters - Enhanced styling while keeping your layout */}
@@ -169,26 +146,26 @@ const Home = () => {
             <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 px-3 py-2 rounded-lg transition-colors">
               <input
                 type="checkbox"
-                checked={showGroups}
-                onChange={handleGroupsChange}
+                checked={showPublic}
+                onChange={handlePublicChange}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 transition-colors"
               />
               <span className="text-sm font-medium text-gray-700 dark:text-slate-300 flex items-center gap-2">
                 <Users size={16} className="text-blue-600" />
-                Groups
+                Public Groups
               </span>
             </label>
 
             <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 px-3 py-2 rounded-lg transition-colors">
               <input
                 type="checkbox"
-                checked={showNotes}
-                onChange={handleNotesChange}
+                checked={showPrivate}
+                onChange={handlePrivateChange}
                 className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 transition-colors"
               />
               <span className="text-sm font-medium text-gray-700 dark:text-slate-300 flex items-center gap-2">
-                <FileText size={16} className="text-green-600" />
-                Notes
+                <Lock size={16} className="text-green-600" />
+                Private Groups
               </span>
             </label>
           </div>
@@ -205,22 +182,35 @@ const Home = () => {
               results
             </p>
             <div className="text-sm text-gray-500 dark:text-slate-500">
-              {filteredData.filter((item) => item.type === "group").length}{" "}
-              groups •{" "}
-              {filteredData.filter((item) => item.type === "note").length} notes
+              {filteredData.filter((item) => !item.isPrivate).length} public •{" "}
+              {filteredData.filter((item) => item.isPrivate).length} private
             </div>
           </div>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="text-center py-16">
+            <div className="inline-flex items-center gap-3">
+              <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-600 dark:text-slate-400">
+                Searching groups...
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredData.map((item) => (
-            <HomeCard key={item.id} item={item} />
-          ))}
-        </div>
+        {!isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredData.map((item) => (
+              <Card key={item.id} item={item} />
+            ))}
+          </div>
+        )}
 
         {/* No Results - Enhanced styling */}
-        {filteredData.length === 0 && (
+        {!isLoading && filteredData.length === 0 && (
           <div className="text-center py-16">
             <div className="text-gray-300 dark:text-slate-600 mb-6">
               <Search size={64} className="mx-auto" />
@@ -230,11 +220,11 @@ const Home = () => {
             </h3>
             <p className="text-gray-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
               We couldn't find any{" "}
-              {!showGroups
-                ? "notes"
-                : !showNotes
-                ? "groups"
-                : "groups or notes"}{" "}
+              {!showPublic
+                ? "private groups"
+                : !showPrivate
+                ? "public groups"
+                : "groups"}{" "}
               matching your search.
             </p>
           </div>

@@ -21,10 +21,10 @@ const SignIn = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    freeAxios
+    await freeAxios
       .post("/user/signin", formData)
       .then((responce) => {
         if (responce.data.success) {

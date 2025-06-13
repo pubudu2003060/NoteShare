@@ -26,7 +26,7 @@ const SignUp = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== confirmPassword) {
@@ -43,7 +43,7 @@ const SignUp = () => {
       return;
     }
 
-    freeAxios
+    await freeAxios
       .post("/user/signup", formData)
       .then((responce) => {
         if (responce.data.success) {

@@ -1,5 +1,5 @@
 import { Plus, X, Upload, Users } from "lucide-react";
-import GroupCard from "../../components/card/GroupCard";
+import Card from "../../components/card/Card";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -171,7 +171,7 @@ const MyGroups = () => {
         {/* Groups Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sampleGroups.map((item) => (
-            <GroupCard key={item.id} item={item} />
+            <Card key={item.id} item={item} />
           ))}
         </div>
 
