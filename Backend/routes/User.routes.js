@@ -8,8 +8,4 @@ userRouter.post("/signup", signUpUser);
 
 userRouter.post("/signin", signInUser);
 
-userRouter.get("/test", verifyToken, (req, res) => {
-  res.status(200).json({ message: "Test route is working" });
-});
-
 export default userRouter;

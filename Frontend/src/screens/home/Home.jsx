@@ -19,7 +19,7 @@ const Home = () => {
     setIsLoading(true);
     try {
       const response = await JWTAxios.get(
-        `/group/searchgroups/${searchKeyword}`
+        `/group/searchgroups?keyword=${searchKeyword}`
       );
 
       if (response.data.success) {

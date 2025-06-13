@@ -1,7 +1,7 @@
 import Group from "../models/Group.model.js";
 
 export const searchGroups = async (req, res) => {
-  const { keyword } = req.params;
+  const { keyword } = req.query;
 
   try {
     let groups;
@@ -17,7 +17,7 @@ export const searchGroups = async (req, res) => {
     const formattedGroups = groups.map((group) => ({
       id: group._id,
       name: group.name,
-      image: group.image || "https://via.placeholder.com/300x200",
+      image: group.image,
       description: group.description,
       tags: group.tags,
       type: "group",
