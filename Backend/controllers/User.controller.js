@@ -22,15 +22,28 @@ export const signUpUser = async (req, res) => {
       grade,
     });
 
-    const token = jwt.sign({ id: newUser.email }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const accessToken = jwt.sign(
+      { id: newUser.email },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: newUser.email },
+      process.env.JWT_REFRESH_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     await newUser.save();
     console.log("User created:", newUser);
     res.status(201).json({
       success: true,
-      token,
+      accessToken,
+      refreshToken,
       message: "User SignUp Successfully",
       user: newUser,
     });
@@ -58,18 +71,60 @@ export const signInUser = async (req, res) => {
         .json({ success: false, message: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ id: user.email }, process.env.JWT_SECRET, {
+    const accessToken = jwt.sign({ id: user.email }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
+
+    const refreshToken = jwt.sign(
+      { id: user.email },
+      process.env.JWT_REFRESH_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     res.json({
       success: true,
       user,
-      token,
+      accessToken,
+      refreshToken,
       message: "User SignIn Successfully",
     });
   } catch (error) {
     console.error("Error signing in user:", error);
     res.status(500).json({ success: false, message: "Error fetching users" });
+  }
+};
+
+export const refreshAccessToken = (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: "Refresh token missing" });
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const newAccessToken = jwt.sign(
+      { id: decoded.email },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    res.status(200).json({ accessToken: newAccessToken });
+  } catch (error) {
+    return res
+      .status(403)
+      .json({ message: "Invalid or expired refresh token" });
+  }
+};
+
+export const test = (req, res) => {
+  try {
+    res.send("try pass");
+  } catch (error) {
+    console.log("test error " + error.message);
   }
 };
