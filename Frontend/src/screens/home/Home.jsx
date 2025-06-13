@@ -7,14 +7,13 @@ import Card from "../../components/card/Card";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchKeyword, setSearchKeyword] = useState(""); // New state for actual search
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [showPublic, setShowPublic] = useState(true);
   const [showPrivate, setShowPrivate] = useState(true);
   const [filteredData, setFilteredData] = useState([]);
   const [allGroups, setAllGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch data from backend based on searchKeyword
   const fetchGroups = async () => {
     setIsLoading(true);
     try {
@@ -23,7 +22,7 @@ const Home = () => {
       );
 
       if (response.data.success) {
-        setAllGroups(response.data.groups); // raw data from backend
+        setAllGroups(response.data.groups);
       } else {
         console.log("Could not fetch group data");
       }
@@ -34,12 +33,10 @@ const Home = () => {
     }
   };
 
-  // This effect runs whenever searchKeyword changes (actual search trigger)
   useEffect(() => {
     fetchGroups();
   }, [searchKeyword]);
 
-  // Filter by public/private (frontend only)
   useEffect(() => {
     const filtered = allGroups.filter((item) => {
       const matchesType =
@@ -50,17 +47,14 @@ const Home = () => {
     setFilteredData(filtered);
   }, [showPublic, showPrivate, allGroups]);
 
-  // Handle search input change (just updates the input value)
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  // Handle search execution
   const handleSearch = () => {
     setSearchKeyword(searchTerm);
   };
 
-  // Handle Enter key press
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       handleSearch();
@@ -75,9 +69,8 @@ const Home = () => {
     setShowPrivate(e.target.checked);
   };
 
-  // Load initial data on component mount
   useEffect(() => {
-    setSearchKeyword(""); // This will trigger fetchGroups with empty string (random groups)
+    setSearchKeyword("");
   }, []);
 
   return (

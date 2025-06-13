@@ -17,10 +17,11 @@ export const searchGroups = async (req, res) => {
     const formattedGroups = groups.map((group) => ({
       id: group._id,
       name: group.name,
-      image: group.image,
+      image: group.photo,
       description: group.description,
       tags: group.tags,
       type: "group",
+      isPrivate: group.isPrivate,
       members: group.members?.length || 0,
     }));
 
