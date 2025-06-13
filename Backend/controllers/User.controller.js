@@ -83,7 +83,7 @@ export const signInUser = async (req, res) => {
       }
     );
 
-    res.json({
+    res.status(201).json({
       success: true,
       user,
       accessToken,

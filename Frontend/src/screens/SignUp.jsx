@@ -47,8 +47,10 @@ const SignUp = () => {
       .post("/user/signup", formData)
       .then((responce) => {
         if (responce.data.success) {
-          const token = responce.data.token;
-          localStorage.setItem("token", token);
+          const accessToken = responce.data.accessToken;
+          localStorage.setItem("accessToken", accessToken);
+          const refreshToken = responce.data.refreshToken;
+          localStorage.setItem("refreshToken", refreshToken);
           const user = responce.data.user;
           localStorage.setItem("user", JSON.stringify(user));
 
