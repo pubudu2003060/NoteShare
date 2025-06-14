@@ -26,7 +26,6 @@ const MyGroups = () => {
 
   const [tagInput, setTagInput] = useState("");
 
-  // Fetch user's groups from backend
   const fetchMyGroups = async () => {
     setIsLoading(true);
     try {
@@ -37,7 +36,6 @@ const MyGroups = () => {
       if (response.data.success) {
         setMyGroups(response.data.data);
       } else {
-        console.log("Could not fetch groups data");
         toast.error("Failed to load your groups", {
           position: "top-center",
           autoClose: 5000,
@@ -66,7 +64,6 @@ const MyGroups = () => {
     }
   };
 
-  // Load groups on component mount
   useEffect(() => {
     fetchMyGroups();
   }, []);
@@ -144,19 +141,16 @@ const MyGroups = () => {
     setIsSubmitting(true);
 
     try {
-      // Create FormData for file upload
       const submitData = new FormData();
       submitData.append("userId", formData.userId);
       submitData.append("name", formData.name);
       submitData.append("description", formData.description);
       submitData.append("isPrivate", formData.isPrivate);
 
-      // Handle tags - convert array to JSON string or send as individual items
       if (formData.tags.length > 0) {
         submitData.append("tags", JSON.stringify(formData.tags));
       }
 
-      // Append photo if selected
       if (formData.photo) {
         submitData.append("photo", formData.photo);
       }
@@ -179,7 +173,6 @@ const MyGroups = () => {
           theme: "dark",
         });
 
-        // Reset form
         setFormData({
           name: "",
           description: "",
@@ -191,7 +184,6 @@ const MyGroups = () => {
         setTagInput("");
         setShowCreateForm(false);
 
-        // Refresh the groups list
         fetchMyGroups();
       } else {
         toast.error(response.data.message || "Failed to create group", {

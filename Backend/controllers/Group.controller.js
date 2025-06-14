@@ -102,16 +102,11 @@ export const createGroup = async (req, res) => {
 
     let photoUrl = req.file ? req.file.path : null;
 
-    if (!photoUrl) {
-      photoUrl =
-        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=300&h=200&fit=crop";
-    }
-
     const newGroup = new Group({
       name: name.trim(),
-      photo: photoUrl,
+      photo: req.file.path,
       description: description.trim(),
-      tags: tags || [],
+      tags: JSON.parse(tags) || [],
       isPrivate: isPrivate || false,
       admin: userId,
       members: [],
@@ -125,7 +120,6 @@ export const createGroup = async (req, res) => {
       .populate("members", "name email")
       .populate("editors", "name email");
 
-    // Format response
     const formattedGroup = {
       id: populatedGroup._id,
       name: populatedGroup.name,
