@@ -100,8 +100,6 @@ export const createGroup = async (req, res) => {
       });
     }
 
-    let photoUrl = req.file ? req.file.path : null;
-
     const newGroup = new Group({
       name: name.trim(),
       photo: req.file.path,
@@ -114,6 +112,21 @@ export const createGroup = async (req, res) => {
     });
 
     const savedGroup = await newGroup.save();
+
+    await User.findByIdAndUpdate(
+      userId,
+      {
+        $addToSet: { adminGroups: savedGroup._id },
+      },
+      { new: true }
+    );
+
+    // await Promise.all([
+    //   newGroup.save(),
+    //   User.findByIdAndUpdate(userId, {
+    //     $addToSet: { adminGroups: newGroup._id },
+    //   }),
+    // ]);
 
     const populatedGroup = await Group.findById(savedGroup._id)
       .populate("admin", "name email")

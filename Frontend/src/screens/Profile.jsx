@@ -5,7 +5,8 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const signout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
     navigate("/signin");
   };

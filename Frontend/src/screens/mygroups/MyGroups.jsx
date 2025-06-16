@@ -162,6 +162,10 @@ const MyGroups = () => {
       });
 
       if (response.data.success) {
+        const newGroup = response.data.data;
+        const user = JSON.parse(localStorage.getItem("user"));
+        user.adminGroups.push(newGroup.id);
+        localStorage.setItem("user", JSON.stringify(user));
         toast.success("Group created successfully!", {
           position: "top-center",
           autoClose: 5000,
