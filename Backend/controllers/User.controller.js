@@ -22,6 +22,8 @@ export const signUpUser = async (req, res) => {
       grade,
     });
 
+    await newUser.save();
+
     const accessToken = jwt.sign(
       { id: newUser.email },
       process.env.JWT_SECRET,
@@ -38,14 +40,22 @@ export const signUpUser = async (req, res) => {
       }
     );
 
-    await newUser.save();
     console.log("User created:", newUser);
     res.status(201).json({
       success: true,
       accessToken,
       refreshToken,
       message: "User SignUp Successfully",
-      user: newUser,
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+        age: newUser.age,
+        grade: newUser.grade,
+        adminGroups: newUser.adminGroups,
+        memberGroups: newUser.memberGroups,
+        editorGroups: newUser.editorGroups,
+      },
     });
   } catch (error) {
     console.error("Error creating user:", error);
@@ -85,7 +95,16 @@ export const signInUser = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      user,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        age: user.age,
+        grade: user.grade,
+        adminGroups: user.adminGroups,
+        memberGroups: user.memberGroups,
+        editorGroups: user.editorGroups,
+      },
       accessToken,
       refreshToken,
       message: "User SignIn Successfully",

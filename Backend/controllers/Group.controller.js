@@ -140,11 +140,6 @@ export const createGroup = async (req, res) => {
       description: populatedGroup.description,
       tags: populatedGroup.tags,
       isPrivate: populatedGroup.isPrivate,
-      admin: populatedGroup.admin,
-      members: populatedGroup.members.length,
-      editors: populatedGroup.editors,
-      createdAt: populatedGroup.createdAt,
-      updatedAt: populatedGroup.updatedAt,
     };
 
     res.status(201).json({

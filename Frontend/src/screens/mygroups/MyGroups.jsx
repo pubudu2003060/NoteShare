@@ -13,7 +13,7 @@ const MyGroups = () => {
 
   const storedAdmin = localStorage.getItem("user");
   const admin = JSON.parse(storedAdmin);
-  const adminId = admin._id;
+  const adminId = admin.id;
 
   const [formData, setFormData] = useState({
     name: "",
