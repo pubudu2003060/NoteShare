@@ -19,6 +19,9 @@ export const JWTAxios = axios.create({
 JWTAxios.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      window.location.href = "/signin";
+    }
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -65,7 +68,7 @@ JWTAxios.interceptors.response.use(
 
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        window.location.href = "/login";
+        window.location.href = "/signin";
       }
     }
 
