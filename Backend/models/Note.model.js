@@ -4,15 +4,14 @@ const noteSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
     },
     description: {
       type: String,
-      required: true,
     },
     tags: {
       type: [String],
       required: true,
+      enum: ["note", "pastpapers", "examtip", "mindtip", "other"],
     },
     group: {
       type: mongoose.Schema.Types.ObjectId,
