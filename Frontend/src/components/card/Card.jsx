@@ -1,4 +1,5 @@
 import { Users, FileText } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Card = ({ item }) => {
   return (
@@ -59,7 +60,9 @@ const Card = ({ item }) => {
             <span>By {item.author}</span>
           )}
           <button className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors">
-            View {item.type === "group" ? "Group" : "Note"}
+            <Link to={`/home/group?type=admin&id=${item.id}`}>
+              View {item.type === "group" ? "Group" : "Note"}
+            </Link>
           </button>
         </div>
       </div>

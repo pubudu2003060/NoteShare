@@ -234,8 +234,8 @@ const MyGroups = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 md:p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 md:p-6 ">
+      <div className="max-w-7xl mx-auto ">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-center md:items-start sm:items-center gap-4 mb-8">
           <div>

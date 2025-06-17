@@ -1,0 +1,285 @@
+import { useEffect, useState } from "react";
+import {
+  Plus,
+  Users,
+  Lock,
+  Edit3,
+  UserMinus,
+  UserPlus,
+  Settings,
+  Tag,
+} from "lucide-react";
+import useQuery from "../../components/hooks/UseQuery";
+import { JWTAxios } from "../../api/Axios";
+
+const Group = () => {
+  const query = useQuery();
+  const groupId = query.get("id");
+
+  const [groupData, setGroupData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGroupData = async () => {
+      try {
+        const response = await JWTAxios.get(
+          `/group/getadmingroupfromid?id=${groupId}`
+        );
+        if (response.data.success) {
+          setGroupData(response.data.group);
+        } else {
+          console.error("Failed to load group data");
+        }
+      } catch (error) {
+        console.error("Error loading group:", error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (groupId) {
+      fetchGroupData();
+    }
+  }, [groupId]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-slate-400">
+            Loading group data...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!groupData) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-gray-300 dark:text-slate-600 mb-4">
+            <Users size={64} className="mx-auto" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            Group not found
+          </h3>
+          <p className="text-gray-500 dark:text-slate-400">
+            The group you're looking for doesn't exist or you don't have access
+            to it.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className=" bg-gray-50 dark:bg-slate-900 p-4 md:p-6 ">
+      <div className="flex flex-col-reverse lg:flex-row gap-6  max-w-7xl mx-auto ">
+        {/* Main Content - Notes Section */}
+        <div className="flex-1 lg:w-2/3 ">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 min-h-screen relative">
+            {/* Header */}
+            <div className="p-6 border-b border-gray-100 dark:border-slate-700">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    {groupData.name}
+                  </h1>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
+                    <span>Admin:</span>
+                    <span className="font-medium text-blue-600 dark:text-blue-400">
+                      {groupData.admin?.username}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {groupData.isPrivate ? (
+                    <div className="flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-full text-sm font-medium">
+                      <Lock size={14} />
+                      Private
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium">
+                      <Users size={14} />
+                      Public
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Tags */}
+              {groupData.tags && groupData.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {groupData.tags.map((tag, i) => (
+                    <span
+                      key={i}
+                      className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 text-xs rounded-md"
+                    >
+                      <Tag size={12} />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Notes Content */}
+            <div className="p-6">
+              <div className="text-center py-16">
+                <div className="text-gray-300 dark:text-slate-600 mb-6">
+                  <Edit3 size={64} className="mx-auto" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                  No notes yet
+                </h3>
+                <p className="text-gray-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
+                  Start collaborating by creating your first note in this group.
+                </p>
+              </div>
+            </div>
+
+            {/* Add Note Button */}
+            <button className="absolute bottom-6 right-6 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 z-10 group">
+              <Plus size={20} />
+              <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 dark:bg-slate-700 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                Add Note
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Sidebar - Group Info & Members */}
+        <div className="lg:w-1/3 space-y-6">
+          <div className="min-h-screen bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
+            {/* Group Image */}
+            <div className="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 relative">
+              {groupData.photo ? (
+                <img
+                  src={groupData.photo}
+                  alt="Group"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <Users size={48} className="text-white/80" />
+                </div>
+              )}
+            </div>
+
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                About This Group
+              </h3>
+              <p className="text-gray-600 dark:text-slate-400 mb-4 leading-relaxed">
+                {groupData.description}
+              </p>
+
+              <button className="w-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                <Settings size={16} />
+                Change Status
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Team Members
+                </h3>
+                <button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
+                  <UserPlus size={14} />
+                  Add Members
+                </button>
+              </div>
+
+              {/* Editors Section */}
+              {groupData.editors && groupData.editors.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wide">
+                      Editors ({groupData.editors.length})
+                    </h4>
+                  </div>
+                  <div className="space-y-2">
+                    {groupData.editors.map((editor, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-100 dark:border-orange-800/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-orange-200 dark:bg-orange-700 rounded-full flex items-center justify-center">
+                            <span className="text-orange-800 dark:text-orange-200 text-sm font-medium">
+                              {editor.username?.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <span className="text-gray-900 dark:text-white font-medium">
+                            {editor.username}
+                          </span>
+                        </div>
+                        <button className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1">
+                          <UserMinus size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Members Section */}
+              {groupData.members && groupData.members.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wide">
+                      Members ({groupData.members.length})
+                    </h4>
+                  </div>
+                  <div className="space-y-2">
+                    {groupData.members.map((member, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-200 dark:bg-blue-700 rounded-full flex items-center justify-center">
+                            <span className="text-blue-800 dark:text-blue-200 text-sm font-medium">
+                              {member.username?.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <span className="text-gray-900 dark:text-white font-medium">
+                            {member.username}
+                          </span>
+                        </div>
+                        <button className="text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors p-1 text-sm">
+                          <UserPlus size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State */}
+              {(!groupData.editors || groupData.editors.length === 0) &&
+                (!groupData.members || groupData.members.length === 0) && (
+                  <div className="text-center py-8">
+                    <div className="text-gray-300 dark:text-slate-600 mb-3">
+                      <Users size={32} className="mx-auto" />
+                    </div>
+                    <p className="text-gray-500 dark:text-slate-400 text-sm">
+                      No members yet. Invite people to join this group.
+                    </p>
+                  </div>
+                )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Group;

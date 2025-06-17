@@ -175,3 +175,43 @@ export const createGroup = async (req, res) => {
     });
   }
 };
+
+export const getAdminGroupfromId = async (req, res) => {
+  const groupId = req.query.id;
+
+  try {
+    const group = await Group.findById(groupId)
+      .populate("admin", "username email  ")
+      .populate("editors", "username email")
+      .populate("members", "username email");
+
+    if (!group) {
+      return res.status(404).json({
+        success: false,
+        message: "Group not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Group data with admin and notes",
+      group: {
+        id: group._id,
+        name: group.name,
+        photo: group.photo,
+        description: group.description,
+        tags: group.tags,
+        isPrivate: group.isPrivate,
+        admin: group.admin,
+        editors: group.editors,
+        members: group.members,
+      },
+    });
+  } catch (error) {
+    console.log("Error fetching group data: " + error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching group data",
+    });
+  }
+};

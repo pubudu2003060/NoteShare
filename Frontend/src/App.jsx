@@ -12,6 +12,7 @@ import { ToastContainer } from "react-toastify";
 import DarkModeToggle from "./components/modetoggler/DarkModeToggler";
 import Home from "./screens/home/Home";
 import MyGroups from "./screens/mygroups/MyGroups";
+import Group from "./screens/group/Group";
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
             <Route path="stared" element={<Stared />} />
             <Route path="profile" element={<Profile />} />
             <Route path="about" element={<About />} />
+            <Route path="group" element={<Group />} />
           </Route>
           <Route path="*" element={<NoPage />} />
         </Routes>
