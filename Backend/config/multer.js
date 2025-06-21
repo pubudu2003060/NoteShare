@@ -34,10 +34,31 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "noteapp_uploads",
-    allowedFormats: ["jpg", "png", "pdf"],
+    allowedFormats: ["jpg", "png", "pdf", "mp4", "mkv"],
   },
 });
 
-export const upload = multer({ storage });
+// Configure multer with proper settings
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    // Check file type
+    const allowedTypes = /jpeg|jpg|png|pdf|mp4|mkv/;
+    const extname = allowedTypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error("Only images, PDFs, and videos are allowed!"));
+    }
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    files: 10, // Maximum 10 files
+  },
+});
 
 export default upload;

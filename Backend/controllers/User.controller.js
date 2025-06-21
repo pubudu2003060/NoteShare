@@ -125,7 +125,7 @@ export const refreshAccessToken = (req, res) => {
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const newAccessToken = jwt.sign(
-      { id: decoded.email },
+      { id: decoded.id },
       process.env.JWT_SECRET,
       {
         expiresIn: "1h",

@@ -7,20 +7,16 @@ import {
   FileVideo,
   Trash2,
 } from "lucide-react";
+import { toast } from "react-toastify";
+import { longJWTAxios } from "../../api/Axios";
 
 const TAGS = ["note", "pastpapers", "examtip", "mindtip", "other"];
-const CONTENT_TYPES = [
-  { value: "pdf", label: "PDF Document", icon: FileText },
-  { value: "image", label: "Image", icon: Image },
-  { value: "video", label: "Video", icon: FileVideo },
-];
 
-const Upload = ({ onClose }) => {
+const Upload = ({ onClose, groupId }) => {
   const [form, setForm] = useState({
     name: "",
     description: "",
     tags: [],
-    contentType: "",
     files: [],
   });
 
@@ -45,33 +41,10 @@ const Upload = ({ onClose }) => {
     const remainingSlots = 10 - form.files.length;
     const filesToAdd = selectedFiles.slice(0, remainingSlots);
 
-    // Validate file types based on selected content type
-    if (form.contentType) {
-      const validFiles = filesToAdd.filter((file) => {
-        switch (form.contentType) {
-          case "pdf":
-            return file.type === "application/pdf";
-          case "image":
-            return file.type.startsWith("image/");
-          case "video":
-            return file.type.startsWith("video/");
-          default:
-            return true;
-        }
-      });
-
-      if (validFiles.length !== filesToAdd.length) {
-        alert(`Please select only ${form.contentType} files.`);
-        return;
-      }
-
-      setForm((prev) => ({
-        ...prev,
-        files: [...prev.files, ...validFiles],
-      }));
-    } else {
-      alert("Please select a content type first.");
-    }
+    setForm((prev) => ({
+      ...prev,
+      files: [...prev.files, ...filesToAdd],
+    }));
 
     // Reset file input
     e.target.value = "";
@@ -84,19 +57,13 @@ const Upload = ({ onClose }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     // Validation
     if (form.tags.length === 0) {
       alert("Please select at least one tag.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (!form.contentType) {
-      alert("Please select a content type.");
       setIsSubmitting(false);
       return;
     }
@@ -112,28 +79,62 @@ const Upload = ({ onClose }) => {
     formData.append("name", form.name);
     formData.append("description", form.description);
     formData.append("tags", JSON.stringify(form.tags));
-    formData.append("contentType", form.contentType);
+    formData.append("group", groupId);
 
     // Append all files
     form.files.forEach((file, index) => {
       formData.append(`files`, file);
     });
 
-    // Submit logic here
-    console.log("Form data to submit:", {
-      name: form.name,
-      description: form.description,
-      tags: form.tags,
-      contentType: form.contentType,
-      filesCount: form.files.length,
-    });
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
+    }
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await longJWTAxios.post("/note/createnotes", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.data.success) {
+        handleCancel();
+        toast.success(response.data.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      } else {
+        toast.error(response.data.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      }
+    } catch (error) {
+      toast.error("Error adding new note", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+      console.error("Error loading group:", error.message);
+    } finally {
       setIsSubmitting(false);
-      alert("Note uploaded successfully!");
-      onClose();
-    }, 2000);
+    }
   };
 
   const handleCancel = () => {
@@ -141,7 +142,7 @@ const Upload = ({ onClose }) => {
       name: "",
       description: "",
       tags: [],
-      contentType: "",
+
       files: [],
     });
     onClose();
@@ -257,32 +258,6 @@ const Upload = ({ onClose }) => {
             )}
           </div>
 
-          {/* Content Type */}
-          <div>
-            <label
-              htmlFor="contentType"
-              className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2"
-            >
-              Content Type *
-            </label>
-            <select
-              name="contentType"
-              id="contentType"
-              value={form.contentType}
-              onChange={handleChange}
-              required
-              disabled={isSubmitting}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 outline-none transition-colors bg-white dark:bg-slate-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <option value="">Select content type</option>
-              {CONTENT_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* File Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
@@ -296,24 +271,14 @@ const Upload = ({ onClose }) => {
                 id="files"
                 multiple
                 onChange={handleFileUpload}
-                disabled={
-                  isSubmitting || !form.contentType || form.files.length >= 10
-                }
-                accept={
-                  form.contentType === "pdf"
-                    ? ".pdf"
-                    : form.contentType === "image"
-                    ? "image/*"
-                    : form.contentType === "video"
-                    ? "video/*"
-                    : ""
-                }
+                disabled={isSubmitting || form.files.length >= 10}
+                accept=".pdf,image/*,video/*"
                 className="hidden"
               />
               <label
                 htmlFor="files"
                 className={`w-full px-4 py-6 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors cursor-pointer bg-gray-50 dark:bg-slate-700 flex flex-col items-center justify-center gap-3 ${
-                  isSubmitting || !form.contentType || form.files.length >= 10
+                  isSubmitting || form.files.length >= 10
                     ? "opacity-50 cursor-not-allowed"
                     : ""
                 }`}
@@ -324,11 +289,9 @@ const Upload = ({ onClose }) => {
                 />
                 <div className="text-center">
                   <p className="text-gray-600 dark:text-slate-400 font-medium">
-                    {!form.contentType
-                      ? "Select content type first"
-                      : form.files.length >= 10
+                    {form.files.length >= 10
                       ? "Maximum files reached (10/10)"
-                      : `Upload ${form.contentType} files`}
+                      : `Upload  files`}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
                     {form.files.length}/10 files uploaded
@@ -389,7 +352,6 @@ const Upload = ({ onClose }) => {
               disabled={
                 isSubmitting ||
                 form.tags.length === 0 ||
-                !form.contentType ||
                 form.files.length === 0
               }
               className="flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

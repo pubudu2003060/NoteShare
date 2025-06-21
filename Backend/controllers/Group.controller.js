@@ -176,8 +176,11 @@ export const createGroup = async (req, res) => {
   }
 };
 
-export const getAdminGroupfromId = async (req, res) => {
+export const getGroupfromId = async (req, res) => {
   const groupId = req.query.id;
+  const user = req.user;
+
+  let accesslevel = "none";
 
   try {
     const group = await Group.findById(groupId)
@@ -190,6 +193,14 @@ export const getAdminGroupfromId = async (req, res) => {
         success: false,
         message: "Group not found",
       });
+    }
+
+    if (user.adminGroups.includes(groupId)) {
+      accesslevel = "admin";
+    } else if (user.memberGroups.includes(groupId)) {
+      accesslevel = "member";
+    } else if (user.editorGroups.includes(groupId)) {
+      accesslevel = "editor";
     }
 
     res.status(200).json({
@@ -205,6 +216,7 @@ export const getAdminGroupfromId = async (req, res) => {
         admin: group.admin,
         editors: group.editors,
         members: group.members,
+        accesslevel: accesslevel,
       },
     });
   } catch (error) {

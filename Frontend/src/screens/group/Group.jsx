@@ -19,6 +19,7 @@ import {
 import useQuery from "../../components/hooks/UseQuery";
 import { JWTAxios } from "../../api/Axios";
 import Uploadform from "../../components/group/Upload";
+import NoteCard from "../../components/note/NoteCard";
 
 const Group = () => {
   const query = useQuery();
@@ -27,20 +28,25 @@ const Group = () => {
   const [groupData, setGroupData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [memberFilter, setMemberFilter] = useState("all");
+  const [memberFilter, setMemberFilter] = useState("members");
   const [showGroupActions, setShowGroupActions] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [newNote, setNewNote] = useState(false);
   const [showNoteOptions, setShowNoteOptions] = useState(false);
+  const [notes, setNotes] = useState([]);
+
+  const [accesslevel, setAccesslevel] = useState("none");
 
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
         const response = await JWTAxios.get(
-          `/group/getadmingroupfromid?id=${groupId}`
+          `/group/getgroupfromid?id=${groupId}`
         );
         if (response.data.success) {
           setGroupData(response.data.group);
+          const accesslevel = response.data.group.accesslevel;
+          setAccesslevel(accesslevel);
         } else {
           console.error("Failed to load group data");
         }
@@ -53,6 +59,26 @@ const Group = () => {
 
     if (groupId) {
       fetchGroupData();
+    }
+  }, [groupId]);
+
+  useEffect(() => {
+    const fetchNoteData = async () => {
+      try {
+        const notesResponse = await JWTAxios.post("/note/getnotesbygroup", {
+          groupId,
+        });
+        if (notesResponse.data.success) {
+          setNotes(notesResponse.data.notes);
+        }
+      } catch (error) {
+        console.error("Error loading   notes:", error.message);
+      } finally {
+      }
+    };
+
+    if (groupId) {
+      fetchNoteData();
     }
   }, [groupId]);
 
@@ -194,7 +220,7 @@ const Group = () => {
         <div className="flex flex-col-reverse lg:flex-row gap-6  max-w-7xl mx-auto ">
           {/* Main Content - Notes Section */}
           <div className="flex-1 lg:w-2/3 ">
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 md:min-h-screen  relative">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 min-h-150 max-h-150 md:min-h-screen md:max-h-screen  relative">
               {/* Header */}
               <div className="p-6 border-b border-gray-100 dark:border-slate-700">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
@@ -281,87 +307,102 @@ const Group = () => {
                   </div>
                 </div>
               </div>
+
               {/* Notes Content */}
               <div className="p-6">
-                <div className="text-center py-16">
-                  <div className="text-gray-300 dark:text-slate-600 mb-6">
-                    <Edit3 size={64} className="mx-auto" />
+                {notes.length > 0 ? (
+                  <div className="max-h-65 md:max-h-120 overflow-y-auto  color-scrollbar">
+                    {" "}
+                    {notes.map((note, idx) => (
+                      <NoteCard key={idx} note={note} />
+                    ))}
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                    No notes yet
-                  </h3>
-                  <p className="text-gray-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
-                    Start collaborating by creating your first note in this
-                    group.
-                  </p>
-                </div>
-              </div>
-
-              {/* Add Note Button with Dropdown */}
-              <div className="absolute bottom-6 right-6 z-20">
-                <div className="relative">
-                  {/* Note Options Dropdown */}
-                  {showNoteOptions && (
-                    <div className="note-options-dropdown absolute bottom-full right-0 mb-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg py-2 min-w-[200px]">
-                      <button
-                        onClick={handleCreateNote}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
-                      >
-                        <div className="bg-blue-100 dark:bg-blue-900/30 p-1.5 rounded-md">
-                          <FileText
-                            size={16}
-                            className="text-blue-600 dark:text-blue-400"
-                          />
-                        </div>
-                        <div className="text-left">
-                          <div className="font-medium">Create Note</div>
-                          <div className="text-xs text-gray-500 dark:text-slate-400">
-                            Start writing a new note
-                          </div>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={handleUploadFromMachine}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
-                      >
-                        <div className="bg-green-100 dark:bg-green-900/30 p-1.5 rounded-md">
-                          <Upload
-                            size={16}
-                            className="text-green-600 dark:text-green-400"
-                          />
-                        </div>
-                        <div className="text-left">
-                          <div className="font-medium">Upload from Machine</div>
-                          <div className="text-xs text-gray-500 dark:text-slate-400">
-                            Upload documents or files
-                          </div>
-                        </div>
-                      </button>
+                ) : (
+                  <div className="text-center py-16">
+                    <div className="text-gray-300 dark:text-slate-600 mb-6">
+                      <Edit3 size={64} className="mx-auto" />
                     </div>
-                  )}
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                      No notes yet
+                    </h3>
 
-                  {/* Main Add Note Button */}
-                  <button
-                    onClick={() => setShowNoteOptions(!showNoteOptions)}
-                    className={`add-note-button bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group ${
-                      showNoteOptions
-                        ? "scale-110 bg-blue-700 dark:bg-blue-600"
-                        : ""
-                    }`}
-                  >
-                    <Plus
-                      size={20}
-                      className={`transition-transform duration-200 ${
-                        showNoteOptions ? "rotate-45" : ""
-                      }`}
-                    />
-                    <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 dark:bg-slate-700 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      {showNoteOptions ? "Close Menu" : "Add Note"}
-                    </span>
-                  </button>
-                </div>
+                    <p className="text-gray-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
+                      Start collaborating by creating your first note in this
+                      group.
+                    </p>
+                  </div>
+                )}
               </div>
+              {accesslevel === "admin" ? (
+                <div className="absolute bottom-6 right-6 z-20">
+                  <div className="relative">
+                    {/* Note Options Dropdown */}
+                    {showNoteOptions && (
+                      <div className="note-options-dropdown absolute bottom-full right-0 mb-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg py-2 min-w-[200px]">
+                        <button
+                          onClick={handleCreateNote}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
+                        >
+                          <div className="bg-blue-100 dark:bg-blue-900/30 p-1.5 rounded-md">
+                            <FileText
+                              size={16}
+                              className="text-blue-600 dark:text-blue-400"
+                            />
+                          </div>
+                          <div className="text-left">
+                            <div className="font-medium">Create Note</div>
+                            <div className="text-xs text-gray-500 dark:text-slate-400">
+                              Start writing a new note
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={handleUploadFromMachine}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
+                        >
+                          <div className="bg-green-100 dark:bg-green-900/30 p-1.5 rounded-md">
+                            <Upload
+                              size={16}
+                              className="text-green-600 dark:text-green-400"
+                            />
+                          </div>
+                          <div className="text-left">
+                            <div className="font-medium">
+                              Upload from Machine
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-slate-400">
+                              Upload documents or files
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Main Add Note Button */}
+                    <button
+                      onClick={() => setShowNoteOptions(!showNoteOptions)}
+                      className={`add-note-button bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group ${
+                        showNoteOptions
+                          ? "scale-110 bg-blue-700 dark:bg-blue-600"
+                          : ""
+                      }`}
+                    >
+                      <Plus
+                        size={20}
+                        className={`transition-transform duration-200 ${
+                          showNoteOptions ? "rotate-45" : ""
+                        }`}
+                      />
+                      <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 dark:bg-slate-700 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        {showNoteOptions ? "Close Menu" : "Add Note"}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
 
@@ -391,11 +432,14 @@ const Group = () => {
                 <p className="text-gray-600 dark:text-slate-400 mb-4 leading-relaxed">
                   {groupData.description}
                 </p>
-
-                <button className="w-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
-                  <Settings size={16} />
-                  Change Status
-                </button>
+                {accesslevel === "admin" ? (
+                  <button className="w-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                    <Settings size={16} />
+                    Change Status
+                  </button>
+                ) : (
+                  <></>
+                )}
               </div>
 
               <div className={`${expanded ? "block" : "hidden"}  md:block p-6`}>
@@ -403,10 +447,15 @@ const Group = () => {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Team Members
                   </h3>
-                  <button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
-                    <UserPlus size={14} />
-                    Add Members
-                  </button>
+
+                  {accesslevel === "admin" ? (
+                    <button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
+                      <UserPlus size={14} />
+                      Add Members
+                    </button>
+                  ) : (
+                    <></>
+                  )}
                 </div>
 
                 {/* Member Search and Filter */}
@@ -417,7 +466,7 @@ const Group = () => {
                       className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"
                     />
                     <input
-                      type="text"
+                      accesslevel="text"
                       placeholder="Search members..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
@@ -426,26 +475,36 @@ const Group = () => {
                   </div>
 
                   <div className="flex gap-1">
-                    <button
-                      onClick={() => setMemberFilter("all")}
-                      className={`px-2 py-1 text-xs rounded ${
-                        memberFilter === "all"
-                          ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                          : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400"
-                      }`}
-                    >
-                      All
-                    </button>
-                    <button
-                      onClick={() => setMemberFilter("editors")}
-                      className={`px-2 py-1 text-xs rounded ${
-                        memberFilter === "editors"
-                          ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300"
-                          : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400"
-                      }`}
-                    >
-                      Editors
-                    </button>
+                    {accesslevel === "admin" ? (
+                      <button
+                        onClick={() => setMemberFilter("all")}
+                        className={`px-2 py-1 text-xs rounded ${
+                          memberFilter === "all"
+                            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                            : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400"
+                        }`}
+                      >
+                        All
+                      </button>
+                    ) : (
+                      <></>
+                    )}
+
+                    {accesslevel === "admin" ? (
+                      <button
+                        onClick={() => setMemberFilter("editors")}
+                        className={`px-2 py-1 text-xs rounded ${
+                          memberFilter === "editors"
+                            ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300"
+                            : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400"
+                        }`}
+                      >
+                        Editors
+                      </button>
+                    ) : (
+                      <></>
+                    )}
+
                     <button
                       onClick={() => setMemberFilter("members")}
                       className={`px-2 py-1 text-xs rounded ${
@@ -460,147 +519,164 @@ const Group = () => {
                 </div>
 
                 <div className="max-h-80 md:max-h-55 overflow-y-auto  color-scrollbar">
-                  {/* Display filtered members */}
-                  {memberFilter === "all" && (
-                    <div className="space-y-4   overflow-y-auto">
-                      {/* Editors Section */}
-                      {getFilteredMembers("editors").length > 0 && (
-                        <div>
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                            <h4 className="text-sm font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wide">
-                              Editors ({getFilteredMembers("editors").length})
-                            </h4>
-                          </div>
-                          <div className="space-y-2">
-                            {getFilteredMembers("editors").map((editor, i) => (
-                              <div
-                                key={i}
-                                className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-100 dark:border-orange-800/30"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 bg-orange-200 dark:bg-orange-700 rounded-full flex items-center justify-center">
-                                    <span className="text-orange-800 dark:text-orange-200 text-sm font-medium">
-                                      {editor.username?.charAt(0).toUpperCase()}
-                                    </span>
-                                  </div>
-                                  <div className="flex flex-col">
-                                    <span className="text-gray-900 dark:text-white font-medium">
-                                      {editor.username}
-                                    </span>
-                                    <span className="text-gray-900 dark:text-white font-extralight">
-                                      {editor.email}
-                                    </span>
-                                  </div>
-                                </div>
-                                <button
-                                  onClick={() =>
-                                    handleRemoveMember(editor.id, "editor")
-                                  }
-                                  className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1"
-                                >
-                                  <UserMinus size={16} />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Members Section */}
-                      {getFilteredMembers("members").length > 0 && (
-                        <div>
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            <h4 className="text-sm font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wide">
-                              Members ({getFilteredMembers("members").length})
-                            </h4>
-                          </div>
-                          <div className="space-y-2">
-                            {getFilteredMembers("members").map((member, i) => (
-                              <div
-                                key={i}
-                                className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 bg-blue-200 dark:bg-blue-700 rounded-full flex items-center justify-center">
-                                    <span className="text-blue-800 dark:text-blue-200 text-sm font-medium">
-                                      {member.username?.charAt(0).toUpperCase()}
-                                    </span>
-                                  </div>
-
-                                  <div className="flex flex-col">
-                                    <span className="text-gray-900 dark:text-white font-medium">
-                                      {member.username}
-                                    </span>
-                                    <span className="text-gray-900 dark:text-white font-extralight">
-                                      {member.email}
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="flex gap-1">
-                                  <button
-                                    onClick={() =>
-                                      handlePromoteToEditor(member.id)
-                                    }
-                                    className="text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors p-1 text-sm"
-                                    title="Promote to Editor"
+                  {accesslevel === "admin" ? (
+                    /* Display filtered members */ memberFilter === "all" && (
+                      <div className="space-y-4   overflow-y-auto">
+                        {/* Editors Section */}
+                        {getFilteredMembers("editors").length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                              <h4 className="text-sm font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wide">
+                                Editors ({getFilteredMembers("editors").length})
+                              </h4>
+                            </div>
+                            <div className="space-y-2">
+                              {getFilteredMembers("editors").map(
+                                (editor, i) => (
+                                  <div
+                                    key={i}
+                                    className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-100 dark:border-orange-800/30"
                                   >
-                                    <UserPlus size={16} />
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      handleRemoveMember(member.id, "member")
-                                    }
-                                    className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1"
-                                    title="Remove Member"
-                                  >
-                                    <UserMinus size={16} />
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-8 h-8 bg-orange-200 dark:bg-orange-700 rounded-full flex items-center justify-center">
+                                        <span className="text-orange-800 dark:text-orange-200 text-sm font-medium">
+                                          {editor.username
+                                            ?.charAt(0)
+                                            .toUpperCase()}
+                                        </span>
+                                      </div>
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-900 dark:text-white font-medium">
+                                          {editor.username}
+                                        </span>
+                                        <span className="text-gray-900 dark:text-white font-extralight">
+                                          {editor.email}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={() =>
+                                        handleRemoveMember(editor.id, "editor")
+                                      }
+                                      className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1"
+                                    >
+                                      <UserMinus size={16} />
+                                    </button>
+                                  </div>
+                                )
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
+                        )}
+
+                        {/* Members Section */}
+                        {getFilteredMembers("members").length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                              <h4 className="text-sm font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wide">
+                                Members ({getFilteredMembers("members").length})
+                              </h4>
+                            </div>
+                            <div className="space-y-2">
+                              {getFilteredMembers("members").map(
+                                (member, i) => (
+                                  <div
+                                    key={i}
+                                    className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-8 h-8 bg-blue-200 dark:bg-blue-700 rounded-full flex items-center justify-center">
+                                        <span className="text-blue-800 dark:text-blue-200 text-sm font-medium">
+                                          {member.username
+                                            ?.charAt(0)
+                                            .toUpperCase()}
+                                        </span>
+                                      </div>
+
+                                      <div className="flex flex-col">
+                                        <span className="text-gray-900 dark:text-white font-medium">
+                                          {member.username}
+                                        </span>
+                                        <span className="text-gray-900 dark:text-white font-extralight">
+                                          {member.email}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="flex gap-1">
+                                      <button
+                                        onClick={() =>
+                                          handlePromoteToEditor(member.id)
+                                        }
+                                        className="text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors p-1 text-sm"
+                                        title="Promote to Editor"
+                                      >
+                                        <UserPlus size={16} />
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          handleRemoveMember(
+                                            member.id,
+                                            "member"
+                                          )
+                                        }
+                                        className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1"
+                                        title="Remove Member"
+                                      >
+                                        <UserMinus size={16} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  ) : (
+                    <></>
                   )}
 
-                  {/* Show only editors */}
-                  {memberFilter === "editors" && (
-                    <div className="space-y-2">
-                      {getFilteredMembers("editors").map((editor, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-100 dark:border-orange-800/30"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-orange-200 dark:bg-orange-700 rounded-full flex items-center justify-center">
-                              <span className="text-orange-800 dark:text-orange-200 text-sm font-medium">
-                                {editor.username?.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-
-                            <div className="flex flex-col">
-                              <span className="text-gray-900 dark:text-white font-medium">
-                                {editor.username}
-                              </span>
-                              <span className="text-gray-900 dark:text-white font-extralight">
-                                {editor.email}
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() =>
-                              handleRemoveMember(editor.id, "editor")
-                            }
-                            className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1"
+                  {accesslevel === "admin" /* Show only editors */ ? (
+                    memberFilter === "editors" && (
+                      <div className="space-y-2">
+                        {getFilteredMembers("editors").map((editor, i) => (
+                          <div
+                            key={i}
+                            className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-100 dark:border-orange-800/30"
                           >
-                            <UserMinus size={16} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-orange-200 dark:bg-orange-700 rounded-full flex items-center justify-center">
+                                <span className="text-orange-800 dark:text-orange-200 text-sm font-medium">
+                                  {editor.username?.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+
+                              <div className="flex flex-col">
+                                <span className="text-gray-900 dark:text-white font-medium">
+                                  {editor.username}
+                                </span>
+                                <span className="text-gray-900 dark:text-white font-extralight">
+                                  {editor.email}
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() =>
+                                handleRemoveMember(editor.id, "editor")
+                              }
+                              className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1"
+                            >
+                              <UserMinus size={16} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  ) : (
+                    <></>
                   )}
 
                   {/* Show only members */}
@@ -683,7 +759,9 @@ const Group = () => {
         </div>
       </div>
 
-      {newNote && <Uploadform />}
+      {newNote && (
+        <Uploadform onClose={() => setNewNote(false)} groupId={groupId} />
+      )}
     </>
   );
 };

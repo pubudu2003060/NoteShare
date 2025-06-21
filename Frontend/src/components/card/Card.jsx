@@ -1,7 +1,7 @@
 import { Users, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const Card = ({ item }) => {
+const Card = ({ item, type }) => {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-100 dark:border-slate-700">
       <div className="relative overflow-hidden">
@@ -11,17 +11,10 @@ const Card = ({ item }) => {
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
         <div className="absolute top-3 right-3">
-          {item.type === "group" ? (
-            <div className="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-              <Users size={12} />
-              Group
-            </div>
-          ) : (
-            <div className="bg-green-600 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-              <FileText size={12} />
-              Note
-            </div>
-          )}
+          <div className="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+            <Users size={12} />
+            Group
+          </div>
         </div>
       </div>
 
@@ -51,18 +44,13 @@ const Card = ({ item }) => {
         </div>
 
         <div className="flex items-center justify-between text-sm text-gray-500 dark:text-slate-400">
-          {item.type === "group" ? (
-            <span className="flex items-center gap-1">
-              <Users size={14} />
-              {item.members} members
-            </span>
-          ) : (
-            <span>By {item.author}</span>
-          )}
+          <span className="flex items-center gap-1">
+            <Users size={14} />
+            {item.members} members
+          </span>
+
           <button className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors">
-            <Link to={`/home/group?type=admin&id=${item.id}`}>
-              View {item.type === "group" ? "Group" : "Note"}
-            </Link>
+            <Link to={`/home/group?id=${item.id}`}>View Group</Link>
           </button>
         </div>
       </div>

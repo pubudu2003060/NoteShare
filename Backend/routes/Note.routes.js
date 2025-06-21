@@ -1,8 +1,20 @@
 import express from "express";
-import { getRandomTenNotes } from "../controllers/Note.controller.js";
+import {
+  createNotes,
+  getNotesbyGroup,
+} from "../controllers/Note.controller.js";
+import { verifyAccessToken } from "../middleware/JwtVerify.js";
+import upload from "../config/multer.js";
 
 const noteRouter = express.Router();
 
-noteRouter.get("/getrandomtennotes", getRandomTenNotes);
+noteRouter.post(
+  "/createnotes",
+  verifyAccessToken,
+  upload.array("files", 10),
+  createNotes
+);
+
+noteRouter.post("/getnotesbygroup", verifyAccessToken, getNotesbyGroup);
 
 export default noteRouter;
