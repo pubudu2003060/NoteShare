@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import logo from "../assets/logo/logo.jpg";
+import logo from "../../assets/logo/logo.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { freeAxios } from "../api/Axios";
+import { freeAxios } from "../../api/Axios";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);

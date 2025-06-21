@@ -20,6 +20,7 @@ import useQuery from "../../components/hooks/UseQuery";
 import { JWTAxios } from "../../api/Axios";
 import Uploadform from "../../components/group/Upload";
 import NoteCard from "../../components/note/NoteCard";
+import EditGroup from "../../components/group/EditGroup";
 
 const Group = () => {
   const query = useQuery();
@@ -36,6 +37,7 @@ const Group = () => {
   const [notes, setNotes] = useState([]);
   const [notesLoading, setNotesLoading] = useState(true);
   const [accesslevel, setAccesslevel] = useState("none");
+  const [editGroup, setEditGroup] = useState(false);
 
   useEffect(() => {
     const fetchGroupData = async () => {
@@ -443,7 +445,12 @@ const Group = () => {
                   {groupData.description}
                 </p>
                 {accesslevel === "admin" ? (
-                  <button className="w-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => {
+                      setEditGroup(!editGroup);
+                    }}
+                    className="w-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  >
                     <Settings size={16} />
                     Change Status
                   </button>
@@ -771,6 +778,15 @@ const Group = () => {
 
       {newNote && (
         <Uploadform onClose={() => setNewNote(false)} groupId={groupId} />
+      )}
+
+      {editGroup && (
+        <EditGroup
+          groupData={groupData}
+          onClose={() => {
+            setEditGroup(false);
+          }}
+        />
       )}
     </>
   );
