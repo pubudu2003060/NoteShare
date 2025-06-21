@@ -34,7 +34,7 @@ const Group = () => {
   const [newNote, setNewNote] = useState(false);
   const [showNoteOptions, setShowNoteOptions] = useState(false);
   const [notes, setNotes] = useState([]);
-
+  const [notesLoading, setNotesLoading] = useState(true);
   const [accesslevel, setAccesslevel] = useState("none");
 
   useEffect(() => {
@@ -74,6 +74,7 @@ const Group = () => {
       } catch (error) {
         console.error("Error loading   notes:", error.message);
       } finally {
+        setNotesLoading(false);
       }
     };
 
@@ -310,7 +311,16 @@ const Group = () => {
 
               {/* Notes Content */}
               <div className="p-6">
-                {notes.length > 0 ? (
+                {notesLoading ? (
+                  <div className="max-h-65 md:max-h-120 overflow-y-auto  color-scrollbar">
+                    <div className="text-center">
+                      <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                      <p className="text-gray-600 dark:text-slate-400">
+                        Loading note data...
+                      </p>
+                    </div>
+                  </div>
+                ) : notes.length > 0 ? (
                   <div className="max-h-65 md:max-h-120 overflow-y-auto  color-scrollbar">
                     {" "}
                     {notes.map((note, idx) => (
