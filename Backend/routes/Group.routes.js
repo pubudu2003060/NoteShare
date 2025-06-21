@@ -4,6 +4,7 @@ import {
   getGroupfromId,
   getMyGroups,
   searchGroups,
+  updateGroup,
 } from "../controllers/Group.controller.js";
 import { verifyAccessToken } from "../middleware/JwtVerify.js";
 import upload from "../config/multer.js";
@@ -21,6 +22,13 @@ groupRouter.post(
   verifyAccessToken,
   upload.single("photo"),
   createGroup
+);
+
+groupRouter.put(
+  "/updategroup/:groupid",
+  verifyAccessToken,
+  upload.single("photo"),
+  updateGroup
 );
 
 export default groupRouter;

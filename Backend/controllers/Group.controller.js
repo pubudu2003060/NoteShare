@@ -227,3 +227,10 @@ export const getGroupfromId = async (req, res) => {
     });
   }
 };
+
+export const updateGroup = async () => {
+  const groupId = req.path.groupid;
+  console.log(groupId);
+  try {
+  } catch (error) {}
+};

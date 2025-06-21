@@ -8,7 +8,7 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
   const admin = JSON.parse(storedAdmin);
   const adminId = admin.id;
 
-  const preformState = useState({
+  const initialFormData = {
     name: groupData.name || "",
     description: groupData.description || "",
     photo: null,
@@ -16,7 +16,7 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
     isPrivate: groupData.isPrivate,
     userId: adminId,
     groupId: groupData.id,
-  });
+  };
 
   const [formData, setFormData] = useState({
     name: groupData.name || "",
@@ -27,6 +27,31 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
     userId: adminId,
     groupId: groupData.id,
   });
+
+  const hasFormChanged = () => {
+    // Compare simple fields
+    if (
+      formData.name !== initialFormData.name ||
+      formData.description !== initialFormData.description ||
+      formData.isPrivate !== initialFormData.isPrivate ||
+      formData.photo !== initialFormData.photo // Check if a new file was selected
+    ) {
+      return true;
+    }
+
+    // Compare tags array
+    if (formData.tags.length !== initialFormData.tags.length) {
+      return true;
+    }
+    for (let i = 0; i < formData.tags.length; i++) {
+      if (formData.tags[i] !== initialFormData.tags[i]) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tagInput, setTagInput] = useState("");
 
@@ -99,8 +124,7 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const canupdate = preformState === formData;
-    if (canupdate) {
+    if (hasFormChanged()) {
       setIsSubmitting(true);
       try {
         const submitData = new FormData();
@@ -121,7 +145,7 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
 
         // Use PUT method for update and correct endpoint
         const response = await JWTAxios.put(
-          `/group/update/${formData.groupId}`,
+          `/group/updategroup/${formData.groupId}`,
           submitData,
           {
             headers: {
