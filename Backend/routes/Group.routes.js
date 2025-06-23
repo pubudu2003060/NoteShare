@@ -25,7 +25,7 @@ groupRouter.post(
 );
 
 groupRouter.put(
-  "/updategroup/:groupid",
+  "/updategroup",
   verifyAccessToken,
   upload.single("photo"),
   updateGroup

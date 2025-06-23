@@ -107,6 +107,16 @@ const Group = () => {
     };
   }, []);
 
+  const handleGroupUpdate = (update) => {
+    console.log(update);
+    setGroupData((prew) => ({
+      ...prew,
+      ...update,
+    }));
+    console.log(groupData);
+    setEditGroup(false);
+  };
+
   const getFilteredMembers = (memberType) => {
     if (!groupData) return [];
 
@@ -172,14 +182,10 @@ const Group = () => {
     console.log("Upload from machine clicked");
     setShowNoteOptions(false);
     setNewNote(!newNote);
-    // Add your upload from machine logic here
-    // You can open a file input dialog or navigate to upload page
   };
 
   const handleCreateNote = () => {
     console.log("Create note clicked");
-    setShowNoteOptions(false);
-    setNewNote(true);
   };
 
   const totalMembers =
@@ -452,7 +458,7 @@ const Group = () => {
                     className="w-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
                   >
                     <Settings size={16} />
-                    Change Status
+                    Edit Group
                   </button>
                 ) : (
                   <></>
@@ -786,6 +792,7 @@ const Group = () => {
           onClose={() => {
             setEditGroup(false);
           }}
+          onGroupUpdated={handleGroupUpdate}
         />
       )}
     </>

@@ -228,9 +228,49 @@ export const getGroupfromId = async (req, res) => {
   }
 };
 
-export const updateGroup = async () => {
-  const groupId = req.path.groupid;
-  console.log(groupId);
+export const updateGroup = async (req, res) => {
   try {
-  } catch (error) {}
+    const updatedGroupData = req.body;
+    const file = req.file;
+
+    const group = await Group.findById(updatedGroupData.groupId);
+    if (!group) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Group not found" });
+    }
+
+    const updateFields = {};
+
+    if (updatedGroupData.name) updateFields.name = updatedGroupData.name;
+    if (updatedGroupData.description)
+      updateFields.description = updatedGroupData.description;
+    if (updatedGroupData.isPrivate) {
+      updateFields.isPrivate =
+        updatedGroupData.isPrivate === "true" ||
+        updatedGroupData.isPrivate === true;
+    }
+    if (updatedGroupData.tags) {
+      console.log(updatedGroupData.tags);
+      updateFields.tags = JSON.parse(updatedGroupData.tags);
+    }
+
+    if (file) {
+      updateFields.photo = file.path;
+    }
+
+    await Group.updateOne(
+      { _id: updatedGroupData.groupId },
+      { $set: updateFields }
+    );
+
+    return res.status(200).json({
+      success: true,
+      updatedGroup: updateFields,
+      message: "Group updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating group:", error.message);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };

@@ -14,7 +14,6 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
     photo: null,
     tags: groupData.tags,
     isPrivate: groupData.isPrivate,
-    userId: adminId,
     groupId: groupData.id,
   };
 
@@ -24,29 +23,25 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
     photo: null,
     tags: groupData.tags,
     isPrivate: groupData.isPrivate,
-    userId: adminId,
     groupId: groupData.id,
   });
 
   const hasFormChanged = () => {
-    // Compare simple fields
     if (
       formData.name !== initialFormData.name ||
       formData.description !== initialFormData.description ||
       formData.isPrivate !== initialFormData.isPrivate ||
-      formData.photo !== initialFormData.photo // Check if a new file was selected
+      formData.photo !== initialFormData.photo
     ) {
       return true;
     }
 
-    // Compare tags array
-    if (formData.tags.length !== initialFormData.tags.length) {
+    const tagsChanged =
+      formData.tags.length !== initialFormData.tags.length ||
+      formData.tags.some((tag, i) => tag !== initialFormData.tags[i]);
+
+    if (tagsChanged) {
       return true;
-    }
-    for (let i = 0; i < formData.tags.length; i++) {
-      if (formData.tags[i] !== initialFormData.tags[i]) {
-        return true;
-      }
     }
 
     return false;
@@ -129,38 +124,50 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
       try {
         const submitData = new FormData();
         submitData.append("groupId", formData.groupId);
-        submitData.append("userId", formData.userId);
-        submitData.append("name", formData.name);
-        submitData.append("description", formData.description);
-        submitData.append("isPrivate", formData.isPrivate);
 
-        if (formData.tags.length > 0) {
-          submitData.append("tags", JSON.stringify(formData.tags));
+        if (initialFormData.name !== formData.name) {
+          submitData.append("name", formData.name);
+        }
+        if (initialFormData.description !== formData.description) {
+          submitData.append("description", formData.description);
+        }
+        if (initialFormData.isPrivate !== formData.isPrivate) {
+          submitData.append("isPrivate", formData.isPrivate);
         }
 
-        // Only append photo if a new file was selected
+        const tagsChanged =
+          formData.tags.length !== initialFormData.tags.length ||
+          formData.tags.some((tag, i) => tag !== initialFormData.tags[i]);
+
+        if (formData.tags.length > 0) {
+          if (tagsChanged) {
+            submitData.append("tags", JSON.stringify(formData.tags));
+          }
+        } else {
+          toast.error("Please add tags for describe the group", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+          return;
+        }
+
         if (formData.photo) {
           submitData.append("photo", formData.photo);
         }
 
-        // Use PUT method for update and correct endpoint
-        const response = await JWTAxios.put(
-          `/group/updategroup/${formData.groupId}`,
-          submitData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = await JWTAxios.put(`/group/updategroup`, submitData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
         if (response.data.success) {
-          const updatedGroup = response.data.data;
-
-          // Update local storage if needed
-          const user = JSON.parse(localStorage.getItem("user"));
-          localStorage.setItem("user", JSON.stringify(user));
-
           toast.success("Group updated successfully!", {
             position: "top-center",
             autoClose: 5000,
@@ -172,12 +179,11 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
             theme: "dark",
           });
 
-          // Call the callback to update parent component
           if (onGroupUpdated) {
-            onGroupUpdated(updatedGroup);
+            console.log(response.data.updatedGroup);
+            onGroupUpdated(response.data.updatedGroup);
           }
 
-          // Close the modal
           onClose();
         } else {
           toast.error(response.data.message || "Failed to update group", {
@@ -194,7 +200,7 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
       } catch (error) {
         console.error("Error updating group:", error);
         const errorMessage =
-          error.response?.data?.message || "Failed to update group";
+          error.response?.data?.message || "Error to update group";
         toast.error(errorMessage, {
           position: "top-center",
           autoClose: 5000,
@@ -223,7 +229,6 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
   };
 
   const handleCancel = () => {
-    // Reset to original values
     setFormData({
       name: groupData.name || "",
       description: groupData.description || "",
