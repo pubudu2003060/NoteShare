@@ -1,7 +1,7 @@
-import { Users, FileText } from "lucide-react";
+import { Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const Card = ({ item, type }) => {
+const Card = ({ item }) => {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-100 dark:border-slate-700">
       <div className="relative overflow-hidden">

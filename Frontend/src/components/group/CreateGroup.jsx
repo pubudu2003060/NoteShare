@@ -1,53 +1,19 @@
 import React, { useState } from "react";
 import { X, Upload } from "lucide-react";
-import { toast } from "react-toastify";
 import { JWTAxios } from "../../api/Axios";
+import { toast } from "react-toastify";
 
-const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
-  const storedAdmin = localStorage.getItem("user");
-  const admin = JSON.parse(storedAdmin);
-  const adminId = admin.id;
-
-  const initialFormData = {
-    name: groupData.name || "",
-    description: groupData.description || "",
-    photo: null,
-    tags: groupData.tags,
-    isPrivate: groupData.isPrivate,
-    groupId: groupData.id,
-  };
-
+const CreateGroup = ({ adminId, setShowCreateForm }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    name: groupData.name || "",
-    description: groupData.description || "",
+    name: "",
+    description: "",
     photo: null,
-    tags: groupData.tags,
-    isPrivate: groupData.isPrivate,
-    groupId: groupData.id,
+    tags: [],
+    isPrivate: false,
+    userId: adminId,
   });
 
-  const hasFormChanged = () => {
-    if (
-      formData.name !== initialFormData.name ||
-      formData.description !== initialFormData.description ||
-      formData.isPrivate !== initialFormData.isPrivate ||
-      formData.photo !== initialFormData.photo
-    ) {
-      return true;
-    }
-
-    const tagsChanged =
-      formData.tags.length !== initialFormData.tags.length ||
-      formData.tags.some((tag, i) => tag !== initialFormData.tags[i]);
-
-    if (tagsChanged) {
-      return true;
-    }
-
-    return false;
-  };
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [tagInput, setTagInput] = useState("");
 
   const handleInputChange = (e) => {
@@ -118,90 +84,19 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    if (hasFormChanged()) {
-      setIsSubmitting(true);
-      try {
-        const submitData = new FormData();
-        submitData.append("groupId", formData.groupId);
+    try {
+      const submitData = new FormData();
+      submitData.append("userId", formData.userId);
+      submitData.append("name", formData.name);
+      submitData.append("description", formData.description);
+      submitData.append("isPrivate", formData.isPrivate);
 
-        if (initialFormData.name !== formData.name) {
-          submitData.append("name", formData.name);
-        }
-        if (initialFormData.description !== formData.description) {
-          submitData.append("description", formData.description);
-        }
-        if (initialFormData.isPrivate !== formData.isPrivate) {
-          submitData.append("isPrivate", formData.isPrivate);
-        }
-
-        const tagsChanged =
-          formData.tags.length !== initialFormData.tags.length ||
-          formData.tags.some((tag, i) => tag !== initialFormData.tags[i]);
-
-        if (formData.tags.length > 0) {
-          if (tagsChanged) {
-            submitData.append("tags", JSON.stringify(formData.tags));
-          }
-        } else {
-          toast.error("Please add tags for describe the group", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-          });
-          return;
-        }
-
-        if (formData.photo) {
-          submitData.append("photo", formData.photo);
-        }
-
-        const response = await JWTAxios.put(`/group/updategroup`, submitData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        if (response.data.success) {
-          toast.success("Group updated successfully!", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-          });
-
-          if (onGroupUpdated) {
-            console.log(response.data.updatedGroup);
-            onGroupUpdated(response.data.updatedGroup);
-          }
-
-          onClose();
-        } else {
-          toast.error(response.data.message || "Failed to update group", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-          });
-        }
-      } catch (error) {
-        console.error("Error updating group:", error);
-        const errorMessage =
-          error.response?.data?.message || "Error to update group";
-        toast.error(errorMessage, {
+      if (formData.tags.length > 0) {
+        submitData.append("tags", JSON.stringify(formData.tags));
+      } else {
+        toast.error("Please add tags for describe the group", {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
@@ -211,11 +106,64 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
           progress: undefined,
           theme: "dark",
         });
-      } finally {
-        setIsSubmitting(false);
+        return;
       }
-    } else {
-      toast.error("Please update First", {
+
+      if (formData.photo) {
+        submitData.append("photo", formData.photo);
+      }
+
+      const response = await JWTAxios.post("/group/creategroup", submitData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data.success) {
+        const newGroup = response.data.data;
+        const user = JSON.parse(localStorage.getItem("user"));
+        user.adminGroups.push(newGroup.id);
+        localStorage.setItem("user", JSON.stringify(user));
+        toast.success("Group created successfully!", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+
+        setFormData({
+          name: "",
+          description: "",
+          photo: null,
+          tags: [],
+          isPrivate: false,
+          userId: adminId,
+        });
+        setTagInput("");
+        setShowCreateForm(false);
+
+        fetchMyGroups();
+      } else {
+        toast.error(response.data.message || "Failed to create group", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      }
+    } catch (error) {
+      console.error("Error creating group:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed to create group";
+      toast.error(errorMessage, {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -225,21 +173,22 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
         progress: undefined,
         theme: "dark",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleCancel = () => {
     setFormData({
-      name: groupData.name || "",
-      description: groupData.description || "",
+      name: "",
+      description: "",
       photo: null,
-      tags: groupData.tags || [],
-      isPrivate: groupData.isPrivate || false,
+      tags: [],
+      isPrivate: false,
       userId: adminId,
-      groupId: groupData.id || groupData._id,
     });
     setTagInput("");
-    onClose();
+    setShowCreateForm(false);
   };
 
   return (
@@ -248,7 +197,7 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
         {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-700">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Edit Group
+            Create New Group
           </h2>
           <button
             onClick={handleCancel}
@@ -311,19 +260,6 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
             >
               Group Photo
             </label>
-            {/* Show current photo if exists */}
-            {groupData.photo && !formData.photo && (
-              <div className="mb-3">
-                <img
-                  src={groupData.photo}
-                  alt="Current group photo"
-                  className="w-20 h-20 object-cover rounded-lg border border-gray-300 dark:border-slate-600"
-                />
-                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                  Current photo (upload a new one to replace)
-                </p>
-              </div>
-            )}
             <div className="relative">
               <input
                 type="file"
@@ -347,7 +283,7 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
                 <span className="text-gray-600 dark:text-slate-400">
                   {formData.photo
                     ? formData.photo.name
-                    : "Upload new group photo (images only)"}
+                    : "Upload group photo (images only)"}
                 </span>
               </label>
             </div>
@@ -458,10 +394,10 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Updating...
+                  Creating...
                 </>
               ) : (
-                "Update Group"
+                "Create Group"
               )}
             </button>
           </div>
@@ -471,4 +407,4 @@ const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
   );
 };
 
-export default EditGroup;
+export default CreateGroup;
