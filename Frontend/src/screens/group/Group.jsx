@@ -6,6 +6,7 @@ import Uploadform from "../../components/group/Upload";
 import EditGroup from "../../components/group/EditGroup";
 import NoteSection from "../../components/group/NoteSection";
 import SidebarSection from "../../components/group/SidebarSection";
+import AddMembers from "../../components/group/Addmembers";
 
 const Group = () => {
   const query = useQuery();
@@ -16,6 +17,7 @@ const Group = () => {
   const [newNote, setNewNote] = useState(false);
   const [accesslevel, setAccesslevel] = useState("none");
   const [editGroup, setEditGroup] = useState(false);
+  const [addMembers, SetAddMembers] = useState(false);
 
   useEffect(() => {
     const fetchGroupData = async () => {
@@ -103,6 +105,7 @@ const Group = () => {
             accesslevel={accesslevel}
             setEditGroup={setEditGroup}
             editGroup={editGroup}
+            SetAddMembers={() => SetAddMembers(true)}
           />
         </div>
       </div>
@@ -118,6 +121,14 @@ const Group = () => {
             setEditGroup(false);
           }}
           onGroupUpdated={handleGroupUpdate}
+        />
+      )}
+
+      {addMembers && (
+        <AddMembers
+          onClose={() => SetAddMembers(false)}
+          groupData={groupData}
+          onMembersUpdated={() => {}}
         />
       )}
     </>

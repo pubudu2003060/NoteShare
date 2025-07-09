@@ -14,6 +14,7 @@ const SidebarSection = ({
   accesslevel,
   setEditGroup,
   editGroup,
+  SetAddMembers,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -128,7 +129,10 @@ const SidebarSection = ({
             </h3>
 
             {accesslevel === "admin" ? (
-              <button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
+              <button
+                onClick={() => SetAddMembers()}
+                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+              >
                 <UserPlus size={14} />
                 Add Members
               </button>

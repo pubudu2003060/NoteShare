@@ -1,6 +1,8 @@
 import User from "../models/User.model.js";
+import Group from "../models/Group.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 export const signUpUser = async (req, res) => {
   try {
@@ -137,6 +139,193 @@ export const refreshAccessToken = (req, res) => {
     return res
       .status(403)
       .json({ message: "Invalid or expired refresh token" });
+  }
+};
+
+export const searchUsers = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    // Check if query parameter is provided
+    if (!query || query.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Search query is required",
+      });
+    }
+
+    // Create search criteria for username and email (case-insensitive)
+    const searchCriteria = {
+      $or: [
+        { username: { $regex: query.trim(), $options: "i" } },
+        { email: { $regex: query.trim(), $options: "i" } },
+      ],
+    };
+
+    // Find users matching the search criteria
+    // Exclude password field from results for security
+    const users = await User.find(searchCriteria)
+      .select("-password")
+      .limit(20) // Limit results to prevent overwhelming the UI
+      .lean(); // Use lean() for better performance
+
+    // Format the response to match what the frontend expects
+    const formattedUsers = users.map((user) => ({
+      id: user._id,
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      age: user.age,
+      grade: user.grade,
+    }));
+
+    res.status(200).json({
+      success: true,
+      users: formattedUsers,
+      message: `Found ${formattedUsers.length} user(s)`,
+    });
+  } catch (error) {
+    console.error("Error searching users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error searching users",
+      error: error.message,
+    });
+  }
+};
+
+export const addmembers = async (req, res) => {
+  try {
+    const { groupId, members = [], editors = [] } = req.body;
+
+    // Validate required fields
+    if (!groupId) {
+      return res.status(400).json({
+        success: false,
+        message: "Group ID is required",
+      });
+    }
+
+    if (members.length === 0 && editors.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one member or editor must be provided",
+      });
+    }
+
+    // Find the group
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({
+        success: false,
+        message: "Group not found",
+      });
+    }
+
+    // Validate that all user IDs exist
+    const allUserIds = [...members, ...editors];
+    const existingUsers = await User.find({ _id: { $in: allUserIds } });
+
+    if (existingUsers.length !== allUserIds.length) {
+      return res.status(400).json({
+        success: false,
+        message: "One or more users not found",
+      });
+    }
+
+    // Check for duplicate memberships
+    const existingMemberIds = group.members.map((id) => id.toString());
+    const existingEditorIds = group.editors.map((id) => id.toString());
+    const adminId = group.admin.toString();
+
+    const duplicateMembers = members.filter(
+      (id) =>
+        existingMemberIds.includes(id) ||
+        existingEditorIds.includes(id) ||
+        adminId === id
+    );
+
+    const duplicateEditors = editors.filter(
+      (id) =>
+        existingMemberIds.includes(id) ||
+        existingEditorIds.includes(id) ||
+        adminId === id
+    );
+
+    if (duplicateMembers.length > 0 || duplicateEditors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Some users are already members or editors of this group",
+      });
+    }
+
+    // Start a transaction to ensure data consistency
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      // Update the group with new members and editors
+      await Group.findByIdAndUpdate(
+        groupId,
+        {
+          $addToSet: {
+            members: { $each: members },
+            editors: { $each: editors },
+          },
+        },
+        { session }
+      );
+
+      // Update users' memberGroups arrays
+      if (members.length > 0) {
+        await User.updateMany(
+          { _id: { $in: members } },
+          { $addToSet: { memberGroups: groupId } },
+          { session }
+        );
+      }
+
+      // Update users' editorGroups arrays
+      if (editors.length > 0) {
+        await User.updateMany(
+          { _id: { $in: editors } },
+          { $addToSet: { editorGroups: groupId } },
+          { session }
+        );
+      }
+
+      // Commit the transaction
+      await session.commitTransaction();
+
+      // Fetch the updated group with populated data
+      const updatedGroup = await Group.findById(groupId)
+        .populate("admin", "username email")
+        .populate("members", "username email")
+        .populate("editors", "username email")
+        .lean();
+
+      res.status(200).json({
+        success: true,
+        message: `Successfully added ${members.length} member(s) and ${editors.length} editor(s) to the group`,
+        updatedGroup: {
+          ...updatedGroup,
+          id: updatedGroup._id,
+        },
+      });
+    } catch (transactionError) {
+      // Rollback the transaction on error
+      await session.abortTransaction();
+      throw transactionError;
+    } finally {
+      session.endSession();
+    }
+  } catch (error) {
+    console.error("Error adding members:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error adding members to group",
+      error: error.message,
+    });
   }
 };
 

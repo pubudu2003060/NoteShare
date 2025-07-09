@@ -4,6 +4,8 @@ import {
   signInUser,
   signUpUser,
   test,
+  searchUsers,
+  addmembers,
 } from "../controllers/User.controller.js";
 import {
   verifyAccessToken,
@@ -19,5 +21,9 @@ userRouter.post("/signin", signInUser);
 userRouter.post("/refreshaccesstoken", verifyRefreshToken, refreshAccessToken);
 
 userRouter.get("/test", verifyAccessToken, test);
+
+userRouter.get("/searchUsers", verifyAccessToken, searchUsers);
+
+userRouter.post("/addmembers", verifyAccessToken, addmembers);
 
 export default userRouter;
