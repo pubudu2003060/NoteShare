@@ -9,14 +9,17 @@ const user = createSlice({
   name: "user",
   initialState: initialState,
   reducers: {
-    logedIn: () => {
+    logedIn: (state) => {
       state.isLogedIn = true;
     },
-    logedOut: () => {
+    logedOut: (state) => {
       state.isLogedIn = false;
+    },
+    addUserData: (state, action) => {
+      state.data = action.payload;
     },
   },
 });
 
-export const { logedIn, logedOut } = user.actions;
+export const { logedIn, logedOut, addUserData } = user.actions;
 export default user.reducer;

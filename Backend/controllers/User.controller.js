@@ -27,16 +27,12 @@ export const signUpUser = async (req, res) => {
 
     await newUser.save();
 
-    const accessToken = jwt.sign(
-      { id: newUser.email },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
+    const accessToken = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     const refreshToken = jwt.sign(
-      { id: newUser.email },
+      { id: newUser._id },
       process.env.JWT_REFRESH_SECRET,
       {
         expiresIn: "7d",
@@ -84,12 +80,12 @@ export const signInUser = async (req, res) => {
         .json({ success: false, message: "Invalid email or password" });
     }
 
-    const accessToken = jwt.sign({ id: user.email }, process.env.JWT_SECRET, {
+    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
     const refreshToken = jwt.sign(
-      { id: user.email },
+      { id: user._id },
       process.env.JWT_REFRESH_SECRET,
       {
         expiresIn: "7d",

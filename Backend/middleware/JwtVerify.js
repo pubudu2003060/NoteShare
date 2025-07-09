@@ -11,9 +11,9 @@ export const verifyAccessToken = async (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findOne({ email: decoded.id });
+    const user = await User.findOne({ _id: decoded.id });
 
     if (!user) {
       return res.status(401).json({ message: "User not found" });
@@ -28,7 +28,7 @@ export const verifyAccessToken = async (req, res, next) => {
   }
 };
 
-export const verifyRefreshToken = (req, res, next) => {
+export const verifyRefreshToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -38,11 +38,16 @@ export const verifyRefreshToken = (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_REFRESH_SECRET || "secretkey"
-    );
-    req.email = decoded.id;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+    const user = await User.findOne({ _id: decoded.id });
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    req.user = user;
+
     next();
   } catch (error) {
     console.error("Token verification failed:", error);

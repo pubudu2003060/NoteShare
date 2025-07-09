@@ -4,8 +4,12 @@ import logo from "../../assets/logo/logo.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { freeAxios } from "../../api/Axios";
+import { useDispatch } from "react-redux";
+import { addUserData } from "../../state/user/UserSlice";
 
 const SignIn = () => {
+  const dispatch = useDispatch();
+
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -33,7 +37,7 @@ const SignIn = () => {
           const refreshToken = responce.data.refreshToken;
           localStorage.setItem("refreshToken", refreshToken);
           const user = responce.data.user;
-          localStorage.setItem("user", JSON.stringify(user));
+          dispatch(addUserData(user));
 
           toast.success(responce.data.message, {
             position: "top-center",
