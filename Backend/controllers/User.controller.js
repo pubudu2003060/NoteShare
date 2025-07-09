@@ -3,6 +3,7 @@ import Group from "../models/Group.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { response } from "express";
 
 export const signUpUser = async (req, res) => {
   try {
@@ -305,6 +306,248 @@ export const addmembers = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error adding members to group",
+      error: error.message,
+    });
+  }
+};
+
+// Add these functions to your User.controller.js file
+
+export const upgradeUser = async (req, res) => {
+  try {
+    const { userId, groupId } = req.body;
+    const adminUser = req.user;
+
+    if (!userId || !groupId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID and Group ID are required",
+      });
+    }
+
+    // Check if the group exists and if the requester is an admin
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({
+        success: false,
+        message: "Group not found",
+      });
+    }
+
+    if (group.admin.toString() !== adminUser._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Only group admin can upgrade users",
+      });
+    }
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Check if user is currently a member (can only upgrade members to editors)
+    const isMember = group.members.includes(userId);
+    if (!isMember) {
+      return res.status(400).json({
+        success: false,
+        message: "User is not a member of this group or is already an editor",
+      });
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      // Remove from members array and add to editors array in group
+      await Group.findByIdAndUpdate(
+        groupId,
+        {
+          $pull: { members: userId },
+          $addToSet: { editors: userId },
+        },
+        { session }
+      );
+
+      // Update user's group memberships
+      await User.findByIdAndUpdate(
+        userId,
+        {
+          $pull: { memberGroups: groupId },
+          $addToSet: { editorGroups: groupId },
+        },
+        { session }
+      );
+
+      await session.commitTransaction();
+
+      // Get updated group data
+      const updatedGroup = await Group.findById(groupId)
+        .populate("admin", "username email")
+        .populate("members", "username email")
+        .populate("editors", "username email")
+        .lean();
+
+      res.status(200).json({
+        success: true,
+        message: "User upgraded to editor successfully",
+        updatedGroup: {
+          ...updatedGroup,
+          id: updatedGroup._id,
+        },
+      });
+    } catch (transactionError) {
+      await session.abortTransaction();
+      throw transactionError;
+    } finally {
+      session.endSession();
+    }
+  } catch (error) {
+    console.error("Error upgrading user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error upgrading user",
+      error: error.message,
+    });
+  }
+};
+
+export const downgradeUser = async (req, res) => {
+  try {
+    const { userId, groupId, targetRole } = req.body;
+    const adminUser = req.user;
+
+    console.log(req.body);
+
+    if (!userId || !groupId || !targetRole) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID, Group ID, and target role are required",
+      });
+    }
+
+    if (!["member", "none"].includes(targetRole)) {
+      return res.status(400).json({
+        success: false,
+        message: "Target role must be 'member' or 'none'",
+      });
+    }
+
+    // Check if the group exists and if the requester is an admin
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({
+        success: false,
+        message: "Group not found",
+      });
+    }
+
+    if (group.admin.toString() !== adminUser._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Only group admin can downgrade users",
+      });
+    }
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Check current user role in the group
+    const isEditor = group.editors.includes(userId);
+    const isMember = group.members.includes(userId);
+
+    if (!isEditor && !isMember) {
+      return res.status(400).json({
+        success: false,
+        message: "User is not a member of this group",
+      });
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      let groupUpdateQuery = {};
+      let userUpdateQuery = {};
+
+      if (targetRole === "member") {
+        // Downgrade from editor to member
+        if (!isEditor) {
+          return res.status(400).json({
+            success: false,
+            message: "User is not an editor",
+          });
+        }
+
+        groupUpdateQuery = {
+          $pull: { editors: userId },
+          $addToSet: { members: userId },
+        };
+
+        userUpdateQuery = {
+          $pull: { editorGroups: groupId },
+          $addToSet: { memberGroups: groupId },
+        };
+      } else if (targetRole === "none") {
+        // Remove from group entirely
+        if (isEditor) {
+          groupUpdateQuery = { $pull: { editors: userId } };
+          userUpdateQuery = { $pull: { editorGroups: groupId } };
+        } else if (isMember) {
+          groupUpdateQuery = { $pull: { members: userId } };
+          userUpdateQuery = { $pull: { memberGroups: groupId } };
+        }
+      }
+
+      // Update group
+      await Group.findByIdAndUpdate(groupId, groupUpdateQuery, { session });
+
+      // Update user
+      await User.findByIdAndUpdate(userId, userUpdateQuery, { session });
+
+      await session.commitTransaction();
+
+      // Get updated group data
+      const updatedGroup = await Group.findById(groupId)
+        .populate("admin", "username email")
+        .populate("members", "username email")
+        .populate("editors", "username email")
+        .lean();
+
+      const message =
+        targetRole === "member"
+          ? "User downgraded to member successfully"
+          : "User removed from group successfully";
+
+      res.status(200).json({
+        success: true,
+        message,
+        updatedGroup: {
+          ...updatedGroup,
+          id: updatedGroup._id,
+        },
+      });
+    } catch (transactionError) {
+      await session.abortTransaction();
+      throw transactionError;
+    } finally {
+      session.endSession();
+    }
+  } catch (error) {
+    console.error("Error downgrading user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error downgrading user",
       error: error.message,
     });
   }

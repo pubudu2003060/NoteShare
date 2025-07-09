@@ -8,6 +8,8 @@ import {
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
+import { toast } from "react-toastify";
+import { JWTAxios } from "../../api/Axios";
 
 const SidebarSection = ({
   groupData,
@@ -15,10 +17,12 @@ const SidebarSection = ({
   setEditGroup,
   editGroup,
   SetAddMembers,
+  onGroupUpdate,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [memberFilter, setMemberFilter] = useState("members");
+  const [loading, setLoading] = useState(false);
 
   const getFilteredMembers = (memberType) => {
     if (!groupData) return [];
@@ -71,14 +75,125 @@ const SidebarSection = ({
     return allMembers;
   };
 
-  const handlePromoteToEditor = async (memberId) => {
-    // Add your promotion logic here
-    console.log("Promoting member to editor:", memberId);
+  const upgradeUser = async (memberId, role) => {
+    setLoading(true);
+    try {
+      const response = await JWTAxios.post("/user/upgradeuser", {
+        userId: memberId,
+        groupId: groupData.id,
+      });
+
+      if (response.data.success) {
+        // Update the group data with the response
+        if (onGroupUpdate) {
+          onGroupUpdate(response.data.updatedGroup);
+        }
+        toast.success("User upgraded successfully!", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      } else {
+        toast.error(response.data.message || "Failed to upgrade user", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      }
+    } catch (error) {
+      console.error("Error upgrading user:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to upgrade user. Please try again.";
+      toast.error(errorMessage, {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const downgradeUser = async (memberId, targetRole) => {
+    setLoading(true);
+    try {
+      const response = await JWTAxios.post("/user/downgradeuser", {
+        userId: memberId,
+        groupId: groupData.id,
+        targetRole: targetRole, // "member" or "none"
+      });
+
+      if (response.data.success) {
+        // Update the group data with the response
+        if (onGroupUpdate) {
+          onGroupUpdate(response.data.updatedGroup);
+        }
+        toast.success("User downgraded successfully!", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      } else {
+        toast.error(response.data.message || "Failed to downgrade user", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      }
+    } catch (error) {
+      console.error("Error downgrading user:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to downgrade user. Please try again.";
+      toast.error(errorMessage, {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRemoveMember = async (memberId, role) => {
-    // Add your removal logic here
-    console.log("Removing member:", memberId, "with role:", role);
+    if (
+      window.confirm(
+        "Are you sure you want to remove this member from the group?"
+      )
+    ) {
+      await downgradeUser(memberId, "none");
+    }
   };
 
   return (
@@ -112,7 +227,8 @@ const SidebarSection = ({
               onClick={() => {
                 setEditGroup(!editGroup);
               }}
-              className="w-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              disabled={loading}
+              className="w-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Settings size={16} />
               Edit Group
@@ -131,7 +247,8 @@ const SidebarSection = ({
             {accesslevel === "admin" ? (
               <button
                 onClick={() => SetAddMembers()}
-                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+                disabled={loading}
+                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <UserPlus size={14} />
                 Add Members
@@ -149,11 +266,12 @@ const SidebarSection = ({
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"
               />
               <input
-                accesslevel="text"
+                type="text"
                 placeholder="Search members..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                disabled={loading}
+                className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -161,7 +279,8 @@ const SidebarSection = ({
               {accesslevel === "admin" ? (
                 <button
                   onClick={() => setMemberFilter("all")}
-                  className={`px-2 py-1 text-xs rounded ${
+                  disabled={loading}
+                  className={`px-2 py-1 text-xs rounded disabled:opacity-50 disabled:cursor-not-allowed ${
                     memberFilter === "all"
                       ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                       : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400"
@@ -176,7 +295,8 @@ const SidebarSection = ({
               {accesslevel === "admin" ? (
                 <button
                   onClick={() => setMemberFilter("editors")}
-                  className={`px-2 py-1 text-xs rounded ${
+                  disabled={loading}
+                  className={`px-2 py-1 text-xs rounded disabled:opacity-50 disabled:cursor-not-allowed ${
                     memberFilter === "editors"
                       ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300"
                       : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400"
@@ -190,7 +310,8 @@ const SidebarSection = ({
 
               <button
                 onClick={() => setMemberFilter("members")}
-                className={`px-2 py-1 text-xs rounded ${
+                disabled={loading}
+                className={`px-2 py-1 text-xs rounded disabled:opacity-50 disabled:cursor-not-allowed ${
                   memberFilter === "members"
                     ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                     : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400"
@@ -236,10 +357,9 @@ const SidebarSection = ({
                               </div>
                             </div>
                             <button
-                              onClick={() =>
-                                handleRemoveMember(editor.id, "editor")
-                              }
-                              className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1"
+                              onClick={() => downgradeUser(editor.id, "member")}
+                              disabled={loading}
+                              className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <UserMinus size={16} />
                             </button>
@@ -282,17 +402,21 @@ const SidebarSection = ({
                             </div>
                             <div className="flex gap-1">
                               <button
-                                onClick={() => handlePromoteToEditor(member.id)}
-                                className="text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors p-1 text-sm"
+                                onClick={() =>
+                                  upgradeUser(member._id, "editor")
+                                }
+                                disabled={loading}
+                                className="text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors p-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Promote to Editor"
                               >
                                 <UserPlus size={16} />
                               </button>
                               <button
                                 onClick={() =>
-                                  handleRemoveMember(member.id, "member")
+                                  handleRemoveMember(member._id, "member")
                                 }
-                                className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1"
+                                disabled={loading}
+                                className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Remove Member"
                               >
                                 <UserMinus size={16} />
@@ -334,8 +458,9 @@ const SidebarSection = ({
                         </div>
                       </div>
                       <button
-                        onClick={() => handleRemoveMember(editor.id, "editor")}
-                        className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1"
+                        onClick={() => handleRemoveMember(editor._id, "editor")}
+                        disabled={loading}
+                        className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <UserMinus size={16} />
                       </button>
@@ -372,15 +497,17 @@ const SidebarSection = ({
                     </div>
                     <div className="flex gap-1">
                       <button
-                        onClick={() => handlePromoteToEditor(member.id)}
-                        className="text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors p-1 text-sm"
+                        onClick={() => upgradeUser(member._id, "editor")}
+                        disabled={loading}
+                        className="text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors p-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Promote to Editor"
                       >
                         <UserPlus size={16} />
                       </button>
                       <button
-                        onClick={() => handleRemoveMember(member.id, "member")}
-                        className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1"
+                        onClick={() => handleRemoveMember(member._id, "member")}
+                        disabled={loading}
+                        className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Remove Member"
                       >
                         <UserMinus size={16} />
@@ -416,7 +543,8 @@ const SidebarSection = ({
           onClick={() => {
             setExpanded(!expanded);
           }}
-          className="absolute bottom-0 right-5 md:hidden  text-gray-500 hover:text-gray-800 dark:hover:text-white"
+          disabled={loading}
+          className="absolute bottom-0 right-5 md:hidden  text-gray-500 hover:text-gray-800 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {expanded ? <ChevronUp /> : <ChevronDown />}
         </button>

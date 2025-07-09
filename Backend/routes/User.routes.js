@@ -6,6 +6,8 @@ import {
   test,
   searchUsers,
   addmembers,
+  upgradeUser,
+  downgradeUser,
 } from "../controllers/User.controller.js";
 import {
   verifyAccessToken,
@@ -25,5 +27,9 @@ userRouter.get("/test", verifyAccessToken, test);
 userRouter.get("/searchUsers", verifyAccessToken, searchUsers);
 
 userRouter.post("/addmembers", verifyAccessToken, addmembers);
+
+userRouter.post("/upgradeuser", verifyAccessToken, upgradeUser);
+
+userRouter.post("/downgradeuser", verifyAccessToken, downgradeUser);
 
 export default userRouter;
