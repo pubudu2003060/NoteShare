@@ -11,7 +11,6 @@ const AddMembers = ({ onClose, groupData, onMembersUpdated }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
 
-  // Debounced search effect
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (searchTerm.trim()) {
@@ -36,11 +35,10 @@ const AddMembers = ({ onClose, groupData, onMembersUpdated }) => {
       );
 
       if (response.data.success) {
-        // Filter out users who are already members or editors
         const existingMemberIds = [
-          ...(groupData.members || []).map((m) => m.id || m._id),
-          ...(groupData.editors || []).map((e) => e.id || e._id),
-          groupData.admin?.id || groupData.admin?._id,
+          ...groupData.members.map((m) => m._id),
+          ...groupData.editors.map((e) => e._id),
+          groupData.admin?._id,
         ];
 
         const filteredUsers = response.data.users.filter(
@@ -70,14 +68,10 @@ const AddMembers = ({ onClose, groupData, onMembersUpdated }) => {
   };
 
   const handleUserSelect = (user) => {
-    const isSelected = selectedUsers.find(
-      (u) => (u.id || u._id) === (user.id || user._id)
-    );
+    const isSelected = selectedUsers.find((u) => u.id === user.id);
 
     if (isSelected) {
-      setSelectedUsers(
-        selectedUsers.filter((u) => (u.id || u._id) !== (user.id || user._id))
-      );
+      setSelectedUsers(selectedUsers.filter((u) => u.id !== user.id));
     } else {
       setSelectedUsers([...selectedUsers, { ...user, role: "member" }]);
     }
@@ -86,7 +80,7 @@ const AddMembers = ({ onClose, groupData, onMembersUpdated }) => {
   const handleRoleChange = (userId, newRole) => {
     setSelectedUsers(
       selectedUsers.map((user) =>
-        (user.id || user._id) === userId ? { ...user, role: newRole } : user
+        user.id === userId ? { ...user, role: newRole } : user
       )
     );
   };
@@ -130,7 +124,6 @@ const AddMembers = ({ onClose, groupData, onMembersUpdated }) => {
           }
         );
 
-        // Call the callback to update the parent component
         if (onMembersUpdated) {
           onMembersUpdated(response.data.updatedGroup);
         }

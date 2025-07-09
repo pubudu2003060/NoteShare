@@ -146,7 +146,6 @@ export const searchUsers = async (req, res) => {
   try {
     const { query } = req.query;
 
-    // Check if query parameter is provided
     if (!query || query.trim() === "") {
       return res.status(400).json({
         success: false,
@@ -154,7 +153,6 @@ export const searchUsers = async (req, res) => {
       });
     }
 
-    // Create search criteria for username and email (case-insensitive)
     const searchCriteria = {
       $or: [
         { username: { $regex: query.trim(), $options: "i" } },
@@ -162,21 +160,15 @@ export const searchUsers = async (req, res) => {
       ],
     };
 
-    // Find users matching the search criteria
-    // Exclude password field from results for security
     const users = await User.find(searchCriteria)
       .select("-password")
-      .limit(20) // Limit results to prevent overwhelming the UI
-      .lean(); // Use lean() for better performance
+      .limit(20)
+      .lean();
 
-    // Format the response to match what the frontend expects
     const formattedUsers = users.map((user) => ({
       id: user._id,
-      _id: user._id,
       username: user.username,
       email: user.email,
-      age: user.age,
-      grade: user.grade,
     }));
 
     res.status(200).json({
@@ -198,7 +190,6 @@ export const addmembers = async (req, res) => {
   try {
     const { groupId, members = [], editors = [] } = req.body;
 
-    // Validate required fields
     if (!groupId) {
       return res.status(400).json({
         success: false,
@@ -213,7 +204,6 @@ export const addmembers = async (req, res) => {
       });
     }
 
-    // Find the group
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({
@@ -222,7 +212,6 @@ export const addmembers = async (req, res) => {
       });
     }
 
-    // Validate that all user IDs exist
     const allUserIds = [...members, ...editors];
     const existingUsers = await User.find({ _id: { $in: allUserIds } });
 
@@ -233,7 +222,6 @@ export const addmembers = async (req, res) => {
       });
     }
 
-    // Check for duplicate memberships
     const existingMemberIds = group.members.map((id) => id.toString());
     const existingEditorIds = group.editors.map((id) => id.toString());
     const adminId = group.admin.toString();
@@ -259,12 +247,10 @@ export const addmembers = async (req, res) => {
       });
     }
 
-    // Start a transaction to ensure data consistency
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
-      // Update the group with new members and editors
       await Group.findByIdAndUpdate(
         groupId,
         {
@@ -276,7 +262,6 @@ export const addmembers = async (req, res) => {
         { session }
       );
 
-      // Update users' memberGroups arrays
       if (members.length > 0) {
         await User.updateMany(
           { _id: { $in: members } },
@@ -285,7 +270,6 @@ export const addmembers = async (req, res) => {
         );
       }
 
-      // Update users' editorGroups arrays
       if (editors.length > 0) {
         await User.updateMany(
           { _id: { $in: editors } },
@@ -294,10 +278,8 @@ export const addmembers = async (req, res) => {
         );
       }
 
-      // Commit the transaction
       await session.commitTransaction();
 
-      // Fetch the updated group with populated data
       const updatedGroup = await Group.findById(groupId)
         .populate("admin", "username email")
         .populate("members", "username email")
@@ -313,7 +295,6 @@ export const addmembers = async (req, res) => {
         },
       });
     } catch (transactionError) {
-      // Rollback the transaction on error
       await session.abortTransaction();
       throw transactionError;
     } finally {

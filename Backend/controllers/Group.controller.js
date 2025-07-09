@@ -50,11 +50,7 @@ export const getMyGroups = async (req, res) => {
   try {
     const userId = req.body.id;
 
-    const groups = await Group.find({ admin: userId })
-      .populate("admin", "name email")
-      .populate("members", "name email")
-      .populate("editors", "name email")
-      .sort({ createdAt: -1 });
+    const groups = await Group.find({ admin: userId }).sort({ createdAt: -1 });
 
     const formattedGroups = groups.map((group) => ({
       id: group._id,
