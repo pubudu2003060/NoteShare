@@ -56,6 +56,7 @@ const SignUp = () => {
           const refreshToken = responce.data.refreshToken;
           localStorage.setItem("refreshToken", refreshToken);
           const user = responce.data.user;
+          localStorage.setItem("userId", JSON.stringify(user.id));
           dispatch(addUserData(user));
           dispatch(logedIn());
 

@@ -176,10 +176,10 @@ export const getGroupfromId = async (req, res) => {
         tags: group.tags,
         isPrivate: group.isPrivate,
         admin: group.admin,
-        editors: group.editors,
-        members: group.members,
         accesslevel: accesslevel,
       },
+      editors: group.editors,
+      members: group.members,
     });
   } catch (error) {
     console.log("Error fetching group data: " + error.message);

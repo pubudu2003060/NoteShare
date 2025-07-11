@@ -13,10 +13,58 @@ import DarkModeToggle from "./components/modetoggler/DarkModeToggler";
 import Home from "./screens/home/Home";
 import MyGroups from "./screens/mygroups/MyGroups";
 import Group from "./screens/group/Group";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { JWTAxios } from "./api/Axios";
+import { addUserData, logedIn } from "./state/user/UserSlice";
 
 const App = () => {
   const isLogedIn = useSelector((state) => state.user.isLogedIn);
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const test = async () => {
+      const accessToken = localStorage.getItem("accessToken");
+      const refreshToken = localStorage.getItem("refreshToken");
+      const userId = localStorage.getItem("userId");
+      console.log("ppppppppp");
+      if (!userId || !accessToken || !refreshToken || isLogedIn) {
+        console.log("oooooooooo");
+        setLoading(false);
+        return;
+      }
+      try {
+        const responce = await JWTAxios.get("/user/test", { userId });
+        console.log(responce.data);
+        if (responce.data.success) {
+          dispatch(addUserData(responce.data.user));
+          dispatch(logedIn());
+        } else {
+          console.log(responce.data.message);
+        }
+      } catch (error) {
+        console.log(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    test();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-slate-400">
+            Loading session...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

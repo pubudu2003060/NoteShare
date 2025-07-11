@@ -51,9 +51,6 @@ export const signUpUser = async (req, res) => {
         email: newUser.email,
         age: newUser.age,
         grade: newUser.grade,
-        adminGroups: newUser.adminGroups,
-        memberGroups: newUser.memberGroups,
-        editorGroups: newUser.editorGroups,
       },
     });
   } catch (error) {
@@ -100,9 +97,6 @@ export const signInUser = async (req, res) => {
         email: user.email,
         age: user.age,
         grade: user.grade,
-        adminGroups: user.adminGroups,
-        memberGroups: user.memberGroups,
-        editorGroups: user.editorGroups,
       },
       accessToken,
       refreshToken,
@@ -535,8 +529,24 @@ export const downgradeUser = async (req, res) => {
 
 export const test = (req, res) => {
   try {
-    res.send("try pass");
+    const user = req.user;
+    const userId = user._id;
+    const id = req.params.id;
+    if (userId == id) {
+      res.status(400).json({ success: fail, message: "try fail" });
+    }
+    const sendUser = {
+      id: userId,
+      username: user.username,
+      email: user.email,
+      age: user.age,
+      grade: user.grade,
+    };
+    res
+      .status(200)
+      .json({ success: true, message: "try pass", user: sendUser });
   } catch (error) {
     console.log("test error " + error.message);
+    res.status(400).json({ success: fail, message: "try fail" });
   }
 };
