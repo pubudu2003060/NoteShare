@@ -1,6 +1,16 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Users, Globe, Lock, Star, User, Info } from "lucide-react";
+import {
+  Menu,
+  X,
+  Users,
+  Globe,
+  Lock,
+  Star,
+  User,
+  Info,
+  Home,
+} from "lucide-react";
 import logo from "../../assets/logo/logo.jpg";
 
 const SideBar = () => {
@@ -58,6 +68,19 @@ const SideBar = () => {
             <ul className="space-y-2">
               <li>
                 <Link
+                  to=""
+                  className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-900/20 hover:text-white dark:hover:text-blue-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Home className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <span className="hidden sm:block md:block">Home</span>
+                  <span className="block sm:hidden md:hidden text-xs">
+                    Home
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="mygroups"
                   className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-900/20 hover:text-white dark:hover:text-blue-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
                   onClick={() => setIsOpen(false)}
@@ -65,7 +88,7 @@ const SideBar = () => {
                   <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   <span className="hidden sm:block md:block">My Groups</span>
                   <span className="block sm:hidden md:hidden text-xs">
-                    Groups
+                    My Groups
                   </span>
                 </Link>
               </li>

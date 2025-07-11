@@ -5,15 +5,14 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { JWTAxios } from "../../api/Axios";
 import CreateGroup from "../../components/group/CreateGroup";
+import { useSelector } from "react-redux";
 
 const MyGroups = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [myGroups, setMyGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const storedAdmin = localStorage.getItem("user");
-  const admin = JSON.parse(storedAdmin);
-  const adminId = admin.id;
+  const adminId = useSelector((state) => state.user.data.id);
 
   const fetchMyGroups = async () => {
     setIsLoading(true);
