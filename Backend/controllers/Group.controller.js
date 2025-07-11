@@ -21,7 +21,7 @@ export const searchGroups = async (req, res) => {
     const formattedGroups = groups.map((group) => ({
       id: group._id,
       name: group.name,
-      image: group.photo,
+      photo: group.photo,
       description: group.description,
       tags: group.tags,
       type: "group",
@@ -55,12 +55,11 @@ export const getMyGroups = async (req, res) => {
     const formattedGroups = groups.map((group) => ({
       id: group._id,
       name: group.name,
-      image: group.photo,
+      photo: group.photo,
       description: group.description,
       tags: group.tags,
-      type: "group",
       isPrivate: group.isPrivate,
-      members: group.members?.length || 0,
+      members: group.members?.length + group.editors?.length || 0,
     }));
 
     res.status(200).json({
@@ -110,25 +109,7 @@ export const createGroup = async (req, res) => {
 
     const savedGroup = await newGroup.save();
 
-    await User.findByIdAndUpdate(
-      userId,
-      {
-        $addToSet: { adminGroups: savedGroup._id },
-      },
-      { new: true }
-    );
-
-    // await Promise.all([
-    //   newGroup.save(),
-    //   User.findByIdAndUpdate(userId, {
-    //     $addToSet: { adminGroups: newGroup._id },
-    //   }),
-    // ]);
-
-    const populatedGroup = await Group.findById(savedGroup._id)
-      .populate("admin", "name email")
-      .populate("members", "name email")
-      .populate("editors", "name email");
+    const populatedGroup = await Group.findById(savedGroup._id);
 
     const formattedGroup = {
       id: populatedGroup._id,
@@ -137,6 +118,8 @@ export const createGroup = async (req, res) => {
       description: populatedGroup.description,
       tags: populatedGroup.tags,
       isPrivate: populatedGroup.isPrivate,
+      members:
+        populatedGroup.members?.length + populatedGroup.editore?.length || 0,
     };
 
     res.status(201).json({
@@ -146,24 +129,6 @@ export const createGroup = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating group:", error);
-
-    if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        message: "A group with this name already exists",
-      });
-    }
-
-    if (error.name === "ValidationError") {
-      const validationErrors = Object.values(error.errors).map(
-        (err) => err.message
-      );
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: validationErrors,
-      });
-    }
 
     res.status(500).json({
       success: false,
@@ -175,7 +140,7 @@ export const createGroup = async (req, res) => {
 
 export const getGroupfromId = async (req, res) => {
   const groupId = req.query.id;
-  const user = req.user;
+  const userId = req.user._id;
 
   let accesslevel = "none";
 
@@ -192,11 +157,11 @@ export const getGroupfromId = async (req, res) => {
       });
     }
 
-    if (user.adminGroups.includes(groupId)) {
+    if (group.admin._id.equals(userId)) {
       accesslevel = "admin";
-    } else if (user.memberGroups.includes(groupId)) {
+    } else if (group.members.includes(userId)) {
       accesslevel = "member";
-    } else if (user.editorGroups.includes(groupId)) {
+    } else if (group.editors.includes(userId)) {
       accesslevel = "editor";
     }
 

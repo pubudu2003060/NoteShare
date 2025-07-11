@@ -30,24 +30,6 @@ const userSchema = new mongoose.Schema(
         "other",
       ],
     },
-    adminGroups: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Group",
-      },
-    ],
-    memberGroups: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Group",
-      },
-    ],
-    editorGroups: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Group",
-      },
-    ],
   },
   { timestamps: true }
 );

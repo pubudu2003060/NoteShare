@@ -6,7 +6,7 @@ const Card = ({ item }) => {
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-100 dark:border-slate-700">
       <div className="relative overflow-hidden">
         <img
-          src={item.image}
+          src={item.photo}
           alt={item.name}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
