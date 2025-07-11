@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { freeAxios } from "../../api/Axios";
 import { useDispatch } from "react-redux";
-import { addUserData } from "../../state/user/UserSlice";
+import { addUserData, logedIn } from "../../state/user/UserSlice";
 
 const SignUp = () => {
   const dispatch = useDispatch();
@@ -57,6 +57,7 @@ const SignUp = () => {
           localStorage.setItem("refreshToken", refreshToken);
           const user = responce.data.user;
           dispatch(addUserData(user));
+          dispatch(logedIn());
 
           toast.success(responce.data.message, {
             position: "top-center",

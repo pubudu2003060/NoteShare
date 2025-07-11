@@ -5,11 +5,15 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { JWTAxios } from "../../api/Axios";
 import CreateGroup from "../../components/group/CreateGroup";
+import { useDispatch, useSelector } from "react-redux";
+import { loadMyGroupData } from "../../state/myGroup/MyGroup";
 
 const MyGroups = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [myGroups, setMyGroups] = useState([]);
+  const myGroups = useSelector((state) => state.myGroups.data);
   const [isLoading, setIsLoading] = useState(false);
+
+  const dispatch = useDispatch();
 
   const fetchMyGroups = async () => {
     setIsLoading(true);
@@ -17,7 +21,7 @@ const MyGroups = () => {
       const response = await JWTAxios.post("/group/getmygroups");
 
       if (response.data.success) {
-        setMyGroups(response.data.data);
+        dispatch(loadMyGroupData(response.data.data));
       } else {
         toast.error("Failed to load your groups", {
           position: "top-center",
@@ -50,8 +54,6 @@ const MyGroups = () => {
   useEffect(() => {
     fetchMyGroups();
   }, []);
-
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 md:p-6 ">
@@ -141,12 +143,7 @@ const MyGroups = () => {
       </div>
 
       {/* Create Group Modal */}
-      {showCreateForm && (
-        <CreateGroup
-          fetchMyGroups={fetchMyGroups}
-          setShowCreateForm={setShowCreateForm}
-        />
-      )}
+      {showCreateForm && <CreateGroup setShowCreateForm={setShowCreateForm} />}
     </div>
   );
 };

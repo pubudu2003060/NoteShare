@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { X, Upload } from "lucide-react";
 import { JWTAxios } from "../../api/Axios";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { addNewMyGroup } from "../../state/myGroup/MyGroup";
 
-const CreateGroup = ({ fetchMyGroups, setShowCreateForm }) => {
+const CreateGroup = ({ setShowCreateForm }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -12,6 +14,8 @@ const CreateGroup = ({ fetchMyGroups, setShowCreateForm }) => {
     tags: [],
     isPrivate: false,
   });
+
+  const dispatch = useDispatch();
 
   const [tagInput, setTagInput] = useState("");
 
@@ -139,9 +143,10 @@ const CreateGroup = ({ fetchMyGroups, setShowCreateForm }) => {
           isPrivate: false,
         });
         setTagInput("");
-        setShowCreateForm(false);
 
-        fetchMyGroups();
+        dispatch(addNewMyGroup(newGroup));
+
+        setShowCreateForm(false);
       } else {
         toast.error(response.data.message || "Failed to create group", {
           position: "top-center",
