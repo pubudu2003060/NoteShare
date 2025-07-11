@@ -27,9 +27,11 @@ export const longJWTAxios = axios.create({
 JWTAxios.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!accessToken || !refreshToken) {
       window.location.href = "/signin";
     }
+
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -41,9 +43,11 @@ JWTAxios.interceptors.request.use(
 longJWTAxios.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!accessToken || !refreshToken) {
       window.location.href = "/signin";
     }
+
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }

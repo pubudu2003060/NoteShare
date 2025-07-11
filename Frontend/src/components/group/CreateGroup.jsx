@@ -3,7 +3,7 @@ import { X, Upload } from "lucide-react";
 import { JWTAxios } from "../../api/Axios";
 import { toast } from "react-toastify";
 
-const CreateGroup = ({ adminId, setShowCreateForm }) => {
+const CreateGroup = ({ fetchMyGroups, setShowCreateForm }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -11,7 +11,6 @@ const CreateGroup = ({ adminId, setShowCreateForm }) => {
     photo: null,
     tags: [],
     isPrivate: false,
-    userId: adminId,
   });
 
   const [tagInput, setTagInput] = useState("");
@@ -121,9 +120,6 @@ const CreateGroup = ({ adminId, setShowCreateForm }) => {
 
       if (response.data.success) {
         const newGroup = response.data.data;
-        const user = JSON.parse(localStorage.getItem("user"));
-        user.adminGroups.push(newGroup.id);
-        localStorage.setItem("user", JSON.stringify(user));
         toast.success("Group created successfully!", {
           position: "top-center",
           autoClose: 5000,
@@ -141,7 +137,6 @@ const CreateGroup = ({ adminId, setShowCreateForm }) => {
           photo: null,
           tags: [],
           isPrivate: false,
-          userId: adminId,
         });
         setTagInput("");
         setShowCreateForm(false);
@@ -185,7 +180,6 @@ const CreateGroup = ({ adminId, setShowCreateForm }) => {
       photo: null,
       tags: [],
       isPrivate: false,
-      userId: adminId,
     });
     setTagInput("");
     setShowCreateForm(false);

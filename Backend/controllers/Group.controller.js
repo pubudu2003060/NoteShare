@@ -48,7 +48,7 @@ export const searchGroups = async (req, res) => {
 
 export const getMyGroups = async (req, res) => {
   try {
-    const userId = req.body.id;
+    const userId = req.user._id;
 
     const groups = await Group.find({ admin: userId }).sort({ createdAt: -1 });
 
@@ -79,7 +79,8 @@ export const getMyGroups = async (req, res) => {
 
 export const createGroup = async (req, res) => {
   try {
-    const { userId, name, description, tags, isPrivate } = req.body;
+    const { name, description, tags, isPrivate } = req.body;
+    const userId = req.user._id;
 
     if (!name || !description) {
       return res.status(400).json({

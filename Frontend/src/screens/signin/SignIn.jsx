@@ -38,8 +38,6 @@ const SignIn = () => {
           localStorage.setItem("refreshToken", refreshToken);
           const user = responce.data.user;
           dispatch(addUserData(user));
-          const userId = user.id;
-          localStorage.setItem("UserId", JSON.stringify(userId));
 
           toast.success(responce.data.message, {
             position: "top-center",

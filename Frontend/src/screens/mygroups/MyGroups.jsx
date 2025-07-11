@@ -5,21 +5,16 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { JWTAxios } from "../../api/Axios";
 import CreateGroup from "../../components/group/CreateGroup";
-import { useSelector } from "react-redux";
 
 const MyGroups = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [myGroups, setMyGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const adminId = useSelector((state) => state.user.data.id);
-
   const fetchMyGroups = async () => {
     setIsLoading(true);
     try {
-      const response = await JWTAxios.post("/group/getmygroups", {
-        id: adminId,
-      });
+      const response = await JWTAxios.post("/group/getmygroups");
 
       if (response.data.success) {
         setMyGroups(response.data.data);
@@ -147,7 +142,10 @@ const MyGroups = () => {
 
       {/* Create Group Modal */}
       {showCreateForm && (
-        <CreateGroup adminId={adminId} setShowCreateForm={setShowCreateForm} />
+        <CreateGroup
+          fetchMyGroups={fetchMyGroups}
+          setShowCreateForm={setShowCreateForm}
+        />
       )}
     </div>
   );
