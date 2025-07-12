@@ -2,22 +2,24 @@ import { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import useQuery from "../../components/hooks/UseQuery";
 import { JWTAxios } from "../../api/Axios";
-import Uploadform from "../../components/group/Upload";
 import EditGroup from "../../components/group/EditGroup";
 import NoteSection from "../../components/group/NoteSection";
 import SidebarSection from "../../components/group/SidebarSection";
 import AddMembers from "../../components/group/Addmembers";
+import { useDispatch, useSelector } from "react-redux";
+import { editGroupData, setGroupData } from "../../state/group/Group";
 
 const Group = () => {
   const query = useQuery();
   const groupId = query.get("id");
 
-  const [groupData, setGroupData] = useState(null);
+  const groupData = useSelector((state) => state.Group.data);
   const [isLoading, setIsLoading] = useState(true);
-  const [newNote, setNewNote] = useState(false);
-  const [accesslevel, setAccesslevel] = useState("none");
+
   const [editGroup, setEditGroup] = useState(false);
   const [addMembers, SetAddMembers] = useState(false);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchGroupData = async () => {
@@ -26,9 +28,7 @@ const Group = () => {
           `/group/getgroupfromid?id=${groupId}`
         );
         if (response.data.success) {
-          setGroupData(response.data.group);
-          const accesslevel = response.data.group.accesslevel;
-          setAccesslevel(accesslevel);
+          dispatch(setGroupData(response.data.group));
         } else {
           console.error("Failed to load group data");
         }
@@ -46,11 +46,7 @@ const Group = () => {
 
   const handleGroupUpdate = (update) => {
     console.log(update);
-    setGroupData((prew) => ({
-      ...prew,
-      ...update,
-    }));
-    console.log(groupData);
+    dispatch(editGroupData(update));
     setEditGroup(false);
   };
 
@@ -91,18 +87,10 @@ const Group = () => {
       <div className=" bg-gray-50 dark:bg-slate-900 p-4 md:p-6 ">
         <div className="flex flex-col-reverse lg:flex-row gap-6  max-w-7xl mx-auto ">
           {/* Main Content - Notes Section */}
-          <NoteSection
-            groupData={groupData}
-            groupId={groupId}
-            accesslevel={accesslevel}
-            setNewNote={setNewNote}
-            newNote={newNote}
-          />
+          <NoteSection groupId={groupId} />
 
           {/* Sidebar - Group Info & Members */}
           <SidebarSection
-            groupData={groupData}
-            accesslevel={accesslevel}
             setEditGroup={setEditGroup}
             editGroup={editGroup}
             SetAddMembers={() => SetAddMembers(true)}
@@ -110,13 +98,8 @@ const Group = () => {
         </div>
       </div>
 
-      {newNote && (
-        <Uploadform onClose={() => setNewNote(false)} groupId={groupId} />
-      )}
-
       {editGroup && (
         <EditGroup
-          groupData={groupData}
           onClose={() => {
             setEditGroup(false);
           }}
@@ -127,7 +110,6 @@ const Group = () => {
       {addMembers && (
         <AddMembers
           onClose={() => SetAddMembers(false)}
-          groupData={groupData}
           onMembersUpdated={() => {}}
         />
       )}

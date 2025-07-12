@@ -2,11 +2,9 @@ import Note from "../models/Note.model.js";
 
 export const createNotes = async (req, res) => {
   try {
-    console.log("eee");
     const { name, description, tags, group } = req.body;
     const userId = req.user._id;
 
-    // Check if files were uploaded
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         success: false,
@@ -14,7 +12,6 @@ export const createNotes = async (req, res) => {
       });
     }
 
-    // Process uploaded files
     const uploadedContent = req.files.map((file) => {
       const fileType = file.mimetype.split("/")[0];
       return {
@@ -23,7 +20,6 @@ export const createNotes = async (req, res) => {
       };
     });
 
-    // Parse tags if it's a string (from FormData)
     let parsedTags;
     try {
       parsedTags = typeof tags === "string" ? JSON.parse(tags) : tags;
@@ -34,7 +30,6 @@ export const createNotes = async (req, res) => {
       });
     }
 
-    // Validate required fields
     if (!parsedTags || parsedTags.length === 0) {
       return res.status(400).json({
         success: false,
@@ -51,11 +46,14 @@ export const createNotes = async (req, res) => {
       content: uploadedContent,
     });
 
-    await note.save();
+    const savedNote = await note.save();
+    await savedNote.populate("createdBy", "username email");
 
-    res
-      .status(201)
-      .json({ success: true, message: "New note added successfully.", note });
+    res.status(201).json({
+      success: true,
+      message: "New note added successfully.",
+      note: savedNote,
+    });
   } catch (error) {
     console.error("Error creating note:", error);
     res.status(500).json({ success: false, message: "Server error" });

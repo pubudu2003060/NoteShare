@@ -10,15 +10,17 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { JWTAxios } from "../../api/Axios";
+import { useSelector } from "react-redux";
 
 const SidebarSection = ({
-  groupData,
-  accesslevel,
   setEditGroup,
   editGroup,
   SetAddMembers,
   onGroupUpdate,
 }) => {
+  const groupData = useSelector((state) => state.Group.data);
+  const accesslevel = useSelector((state) => state.Group.data.accesslevel);
+
   const [expanded, setExpanded] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [memberFilter, setMemberFilter] = useState("members");

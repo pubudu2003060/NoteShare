@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { X, Upload } from "lucide-react";
 import { toast } from "react-toastify";
 import { JWTAxios } from "../../api/Axios";
+import { useSelector } from "react-redux";
 
-const EditGroup = ({ onClose, groupData, onGroupUpdated }) => {
+const EditGroup = ({ onClose, onGroupUpdated }) => {
+  const groupData = useSelector((state) => state.Group.data);
   const storedAdmin = localStorage.getItem("user");
   const admin = JSON.parse(storedAdmin);
   const adminId = admin.id;

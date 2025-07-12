@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { longJWTAxios } from "../../api/Axios";
+import { useDispatch } from "react-redux";
+import { addNewNote } from "../../state/group/Group";
 
 const TAGS = ["note", "pastpapers", "examtip", "mindtip", "other"];
 
@@ -21,6 +23,8 @@ const Upload = ({ onClose, groupId }) => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -46,7 +50,6 @@ const Upload = ({ onClose, groupId }) => {
       files: [...prev.files, ...filesToAdd],
     }));
 
-    // Reset file input
     e.target.value = "";
   };
 
@@ -61,7 +64,6 @@ const Upload = ({ onClose, groupId }) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Validation
     if (form.tags.length === 0) {
       alert("Please select at least one tag.");
       setIsSubmitting(false);
@@ -74,14 +76,12 @@ const Upload = ({ onClose, groupId }) => {
       return;
     }
 
-    // Create FormData for file upload
     const formData = new FormData();
     formData.append("name", form.name);
     formData.append("description", form.description);
     formData.append("tags", JSON.stringify(form.tags));
     formData.append("group", groupId);
 
-    // Append all files
     form.files.forEach((file, index) => {
       formData.append(`files`, file);
     });
@@ -97,6 +97,7 @@ const Upload = ({ onClose, groupId }) => {
         },
       });
       if (response.data.success) {
+        dispatch(addNewNote(response.data.note));
         handleCancel();
         toast.success(response.data.message, {
           position: "top-center",

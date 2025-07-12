@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import { X, Search, UserPlus, Users, Loader2, User } from "lucide-react";
 import { toast } from "react-toastify";
 import { JWTAxios } from "../../api/Axios";
+import { useSelector } from "react-redux";
 
-const AddMembers = ({ onClose, groupData, onMembersUpdated }) => {
+const AddMembers = ({ onClose, onMembersUpdated }) => {
+  const groupData = useSelector((state) => state.Group.data);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);

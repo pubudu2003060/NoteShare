@@ -1,17 +1,29 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialSTate = {
-  data: [],
+  data: {},
   note: [],
-  members: [],
-  editors: [],
 };
 
 const Group = createSlice({
   name: "group",
   initialState: initialSTate,
-  reducers: {},
+  reducers: {
+    setGroupData: (state, action) => {
+      state.data = action.payload;
+    },
+    editGroupData: (state, action) => {
+      state.data = { ...state.data, ...action.payload };
+    },
+    setNotes: (state, action) => {
+      state.note = action.payload;
+    },
+    addNewNote: (state, action) => {
+      state.note = [...state.note, action.payload];
+    },
+  },
 });
 
-export const {} = Group.actions;
+export const { setGroupData, editGroupData, setNotes, addNewNote } =
+  Group.actions;
 export default Group.reducer;
