@@ -28,6 +28,7 @@ const Group = () => {
           `/group/getgroupfromid?id=${groupId}`
         );
         if (response.data.success) {
+          console.log(response.data.group);
           dispatch(setGroupData(response.data.group));
         } else {
           console.error("Failed to load group data");
@@ -103,7 +104,6 @@ const Group = () => {
           onClose={() => {
             setEditGroup(false);
           }}
-          onGroupUpdated={handleGroupUpdate}
         />
       )}
 

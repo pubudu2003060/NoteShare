@@ -2,17 +2,16 @@ import React, { useState } from "react";
 import { X, Upload } from "lucide-react";
 import { toast } from "react-toastify";
 import { JWTAxios } from "../../api/Axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { editGroupData } from "../../state/group/Group";
 
-const EditGroup = ({ onClose, onGroupUpdated }) => {
+const EditGroup = ({ onClose }) => {
   const groupData = useSelector((state) => state.Group.data);
-  const storedAdmin = localStorage.getItem("user");
-  const admin = JSON.parse(storedAdmin);
-  const adminId = admin.id;
+  const dispatch = useDispatch();
 
   const initialFormData = {
-    name: groupData.name || "",
-    description: groupData.description || "",
+    name: groupData.name,
+    description: groupData.description,
     photo: null,
     tags: groupData.tags,
     isPrivate: groupData.isPrivate,
@@ -20,8 +19,8 @@ const EditGroup = ({ onClose, onGroupUpdated }) => {
   };
 
   const [formData, setFormData] = useState({
-    name: groupData.name || "",
-    description: groupData.description || "",
+    name: groupData.name,
+    description: groupData.description,
     photo: null,
     tags: groupData.tags,
     isPrivate: groupData.isPrivate,
@@ -180,11 +179,8 @@ const EditGroup = ({ onClose, onGroupUpdated }) => {
             progress: undefined,
             theme: "dark",
           });
-
-          if (onGroupUpdated) {
-            console.log(response.data.updatedGroup);
-            onGroupUpdated(response.data.updatedGroup);
-          }
+          console.log(response.data.updatedGroup);
+          dispatch(editGroupData(response.data.updatedGroup));
 
           onClose();
         } else {
@@ -237,7 +233,6 @@ const EditGroup = ({ onClose, onGroupUpdated }) => {
       photo: null,
       tags: groupData.tags || [],
       isPrivate: groupData.isPrivate || false,
-      userId: adminId,
       groupId: groupData.id || groupData._id,
     });
     setTagInput("");

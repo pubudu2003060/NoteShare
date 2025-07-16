@@ -195,8 +195,8 @@ export const updateGroup = async (req, res) => {
     const updatedGroupData = req.body;
     const file = req.file;
 
-    const group = await Group.findById(updatedGroupData.groupId);
-    if (!group) {
+    const groupData = await Group.findById(updatedGroupData.groupId);
+    if (!groupData) {
       return res
         .status(404)
         .json({ success: false, message: "Group not found" });
@@ -221,14 +221,28 @@ export const updateGroup = async (req, res) => {
       updateFields.photo = file.path;
     }
 
-    await Group.updateOne(
-      { _id: updatedGroupData.groupId },
-      { $set: updateFields }
-    );
+    const group = await Group.findByIdAndUpdate(
+      updatedGroupData.groupId,
+      { $set: updateFields },
+      { new: true }
+    )
+      .populate("admin", "username email")
+      .populate("editors", "username email")
+      .populate("members", "username email");
 
     return res.status(200).json({
       success: true,
-      updatedGroup: updateFields,
+      updatedGroup: {
+        id: group._id,
+        name: group.name,
+        photo: group.photo,
+        description: group.description,
+        tags: group.tags,
+        isPrivate: group.isPrivate,
+        admin: group.admin,
+        editors: group.editors,
+        members: group.members,
+      },
       message: "Group updated successfully",
     });
   } catch (error) {

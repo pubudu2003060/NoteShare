@@ -13,7 +13,7 @@ const Group = createSlice({
       state.data = action.payload;
     },
     editGroupData: (state, action) => {
-      state.data = { ...state.data, ...action.payload };
+      state.data = { accesslevel: state.data.accesslevel, ...action.payload };
     },
     setNotes: (state, action) => {
       state.note = action.payload;
