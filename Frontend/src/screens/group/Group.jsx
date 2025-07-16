@@ -107,12 +107,7 @@ const Group = () => {
         />
       )}
 
-      {addMembers && (
-        <AddMembers
-          onClose={() => SetAddMembers(false)}
-          onMembersUpdated={() => {}}
-        />
-      )}
+      {addMembers && <AddMembers onClose={() => SetAddMembers(false)} s />}
     </>
   );
 };

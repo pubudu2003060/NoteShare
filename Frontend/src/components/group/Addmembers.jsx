@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import { X, Search, UserPlus, Users, Loader2, User } from "lucide-react";
 import { toast } from "react-toastify";
 import { JWTAxios } from "../../api/Axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { addMembers } from "../../state/group/Group";
 
-const AddMembers = ({ onClose, onMembersUpdated }) => {
+const AddMembers = ({ onClose }) => {
   const groupData = useSelector((state) => state.Group.data);
+  const dispatch = useDispatch();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -127,9 +129,7 @@ const AddMembers = ({ onClose, onMembersUpdated }) => {
           }
         );
 
-        if (onMembersUpdated) {
-          onMembersUpdated(response.data.updatedGroup);
-        }
+        dispatch(addMembers(response.data.updatedGroupMembers));
 
         onClose();
       } else {

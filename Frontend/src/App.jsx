@@ -28,9 +28,7 @@ const App = () => {
       const accessToken = localStorage.getItem("accessToken");
       const refreshToken = localStorage.getItem("refreshToken");
       const userId = localStorage.getItem("userId");
-      console.log("ppppppppp");
       if (!userId || !accessToken || !refreshToken || isLogedIn) {
-        console.log("oooooooooo");
         setLoading(false);
         return;
       }

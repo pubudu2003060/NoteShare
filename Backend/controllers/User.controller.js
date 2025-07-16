@@ -181,13 +181,6 @@ export const addmembers = async (req, res) => {
   try {
     const { groupId, members = [], editors = [] } = req.body;
 
-    if (!groupId) {
-      return res.status(400).json({
-        success: false,
-        message: "Group ID is required",
-      });
-    }
-
     if (members.length === 0 && editors.length === 0) {
       return res.status(400).json({
         success: false,
@@ -242,7 +235,7 @@ export const addmembers = async (req, res) => {
     session.startTransaction();
 
     try {
-      await Group.findByIdAndUpdate(
+      const group = await Group.findByIdAndUpdate(
         groupId,
         {
           $addToSet: {
@@ -250,39 +243,19 @@ export const addmembers = async (req, res) => {
             editors: { $each: editors },
           },
         },
-        { session }
-      );
-
-      if (members.length > 0) {
-        await User.updateMany(
-          { _id: { $in: members } },
-          { $addToSet: { memberGroups: groupId } },
-          { session }
-        );
-      }
-
-      if (editors.length > 0) {
-        await User.updateMany(
-          { _id: { $in: editors } },
-          { $addToSet: { editorGroups: groupId } },
-          { session }
-        );
-      }
+        { session, new: true }
+      )
+        .populate("editors", "username email")
+        .populate("members", "username email");
 
       await session.commitTransaction();
-
-      const updatedGroup = await Group.findById(groupId)
-        .populate("admin", "username email")
-        .populate("members", "username email")
-        .populate("editors", "username email")
-        .lean();
 
       res.status(200).json({
         success: true,
         message: `Successfully added ${members.length} member(s) and ${editors.length} editor(s) to the group`,
-        updatedGroup: {
-          ...updatedGroup,
-          id: updatedGroup._id,
+        updatedGroupMembers: {
+          editors: group.editors,
+          members: group.members,
         },
       });
     } catch (transactionError) {
