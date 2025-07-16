@@ -28,9 +28,27 @@ const Group = createSlice({
         members: action.payload.members,
       };
     },
+    unsetGroupData: (state) => {
+      state.data = {};
+      state.note = [];
+    },
+    updateUsersAndMembers: (state, action) => {
+      state.data = {
+        ...state.data,
+        editors: action.payload.editors,
+        members: action.payload.members,
+      };
+    },
   },
 });
 
-export const { setGroupData, editGroupData, setNotes, addNewNote, addMembers } =
-  Group.actions;
+export const {
+  setGroupData,
+  editGroupData,
+  setNotes,
+  addNewNote,
+  addMembers,
+  unsetGroupData,
+  updateUsersAndMembers,
+} = Group.actions;
 export default Group.reducer;

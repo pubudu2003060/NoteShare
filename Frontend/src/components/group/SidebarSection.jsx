@@ -10,16 +10,13 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { JWTAxios } from "../../api/Axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { updateUsersAndMembers } from "../../state/group/Group";
 
-const SidebarSection = ({
-  setEditGroup,
-  editGroup,
-  SetAddMembers,
-  onGroupUpdate,
-}) => {
+const SidebarSection = ({ setEditGroup, editGroup, SetAddMembers }) => {
   const groupData = useSelector((state) => state.Group.data);
   const accesslevel = useSelector((state) => state.Group.data.accesslevel);
+  const dispatch = useDispatch();
 
   const [expanded, setExpanded] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -86,10 +83,8 @@ const SidebarSection = ({
       });
 
       if (response.data.success) {
-        // Update the group data with the response
-        if (onGroupUpdate) {
-          onGroupUpdate(response.data.updatedGroup);
-        }
+        dispatch(updateUsersAndMembers(response.data.data));
+        console.log(response.data.data);
         toast.success("User upgraded successfully!", {
           position: "top-center",
           autoClose: 5000,
@@ -138,14 +133,13 @@ const SidebarSection = ({
       const response = await JWTAxios.post("/user/downgradeuser", {
         userId: memberId,
         groupId: groupData.id,
-        targetRole: targetRole, // "member" or "none"
+        targetRole: targetRole,
       });
 
       if (response.data.success) {
-        // Update the group data with the response
-        if (onGroupUpdate) {
-          onGroupUpdate(response.data.updatedGroup);
-        }
+        dispatch(updateUsersAndMembers(response.data.data));
+        console.log(response.data.data);
+
         toast.success("User downgraded successfully!", {
           position: "top-center",
           autoClose: 5000,

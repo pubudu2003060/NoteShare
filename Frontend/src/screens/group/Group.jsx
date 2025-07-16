@@ -7,7 +7,11 @@ import NoteSection from "../../components/group/NoteSection";
 import SidebarSection from "../../components/group/SidebarSection";
 import AddMembers from "../../components/group/Addmembers";
 import { useDispatch, useSelector } from "react-redux";
-import { editGroupData, setGroupData } from "../../state/group/Group";
+import {
+  editGroupData,
+  setGroupData,
+  unsetGroupData,
+} from "../../state/group/Group";
 
 const Group = () => {
   const query = useQuery();
@@ -23,12 +27,12 @@ const Group = () => {
 
   useEffect(() => {
     const fetchGroupData = async () => {
+      dispatch(unsetGroupData());
       try {
         const response = await JWTAxios.get(
           `/group/getgroupfromid?id=${groupId}`
         );
         if (response.data.success) {
-          console.log(response.data.group);
           dispatch(setGroupData(response.data.group));
         } else {
           console.error("Failed to load group data");

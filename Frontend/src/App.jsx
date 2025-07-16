@@ -34,7 +34,6 @@ const App = () => {
       }
       try {
         const responce = await JWTAxios.get("/user/test", { userId });
-        console.log(responce.data);
         if (responce.data.success) {
           dispatch(addUserData(responce.data.user));
           dispatch(logedIn());

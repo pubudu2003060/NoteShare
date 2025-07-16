@@ -279,25 +279,11 @@ export const upgradeUser = async (req, res) => {
     const { userId, groupId } = req.body;
     const adminUser = req.user;
 
-    if (!userId || !groupId) {
-      return res.status(400).json({
-        success: false,
-        message: "User ID and Group ID are required",
-      });
-    }
-
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({
         success: false,
         message: "Group not found",
-      });
-    }
-
-    if (group.admin.toString() !== adminUser._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: "Only group admin can upgrade users",
       });
     }
 
@@ -321,38 +307,25 @@ export const upgradeUser = async (req, res) => {
     session.startTransaction();
 
     try {
-      await Group.findByIdAndUpdate(
+      const updatedGroup = await Group.findByIdAndUpdate(
         groupId,
         {
           $pull: { members: userId },
           $addToSet: { editors: userId },
         },
-        { session }
-      );
-
-      await User.findByIdAndUpdate(
-        userId,
-        {
-          $pull: { memberGroups: groupId },
-          $addToSet: { editorGroups: groupId },
-        },
-        { session }
-      );
+        { session, new: true }
+      )
+        .populate("members", "username email")
+        .populate("editors", "username email");
 
       await session.commitTransaction();
-
-      const updatedGroup = await Group.findById(groupId)
-        .populate("admin", "username email")
-        .populate("members", "username email")
-        .populate("editors", "username email")
-        .lean();
 
       res.status(200).json({
         success: true,
         message: "User upgraded to editor successfully",
-        updatedGroup: {
-          ...updatedGroup,
-          id: updatedGroup._id,
+        data: {
+          editors: updatedGroup.editors,
+          members: updatedGroup.members,
         },
       });
     } catch (transactionError) {
@@ -376,19 +349,10 @@ export const downgradeUser = async (req, res) => {
     const { userId, groupId, targetRole } = req.body;
     const adminUser = req.user;
 
-    console.log(req.body);
-
-    if (!userId || !groupId || !targetRole) {
-      return res.status(400).json({
-        success: false,
-        message: "User ID, Group ID, and target role are required",
-      });
-    }
-
     if (!["member", "none"].includes(targetRole)) {
       return res.status(400).json({
         success: false,
-        message: "Target role must be 'member' or 'none'",
+        message: "Can not downgrade",
       });
     }
 
@@ -397,13 +361,6 @@ export const downgradeUser = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Group not found",
-      });
-    }
-
-    if (group.admin.toString() !== adminUser._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: "Only group admin can downgrade users",
       });
     }
 
@@ -421,7 +378,7 @@ export const downgradeUser = async (req, res) => {
     if (!isEditor && !isMember) {
       return res.status(400).json({
         success: false,
-        message: "User is not a member of this group",
+        message: "User is not a editor or member of this group",
       });
     }
 
@@ -430,7 +387,6 @@ export const downgradeUser = async (req, res) => {
 
     try {
       let groupUpdateQuery = {};
-      let userUpdateQuery = {};
 
       if (targetRole === "member") {
         if (!isEditor) {
@@ -444,32 +400,23 @@ export const downgradeUser = async (req, res) => {
           $pull: { editors: userId },
           $addToSet: { members: userId },
         };
-
-        userUpdateQuery = {
-          $pull: { editorGroups: groupId },
-          $addToSet: { memberGroups: groupId },
-        };
       } else if (targetRole === "none") {
         if (isEditor) {
           groupUpdateQuery = { $pull: { editors: userId } };
-          userUpdateQuery = { $pull: { editorGroups: groupId } };
         } else if (isMember) {
           groupUpdateQuery = { $pull: { members: userId } };
-          userUpdateQuery = { $pull: { memberGroups: groupId } };
         }
       }
 
-      await Group.findByIdAndUpdate(groupId, groupUpdateQuery, { session });
-
-      await User.findByIdAndUpdate(userId, userUpdateQuery, { session });
+      const updatedGroup = await Group.findByIdAndUpdate(
+        groupId,
+        groupUpdateQuery,
+        { session, new: true }
+      )
+        .populate("members", "username email")
+        .populate("editors", "username email");
 
       await session.commitTransaction();
-
-      const updatedGroup = await Group.findById(groupId)
-        .populate("admin", "username email")
-        .populate("members", "username email")
-        .populate("editors", "username email")
-        .lean();
 
       const message =
         targetRole === "member"
@@ -479,9 +426,9 @@ export const downgradeUser = async (req, res) => {
       res.status(200).json({
         success: true,
         message,
-        updatedGroup: {
-          ...updatedGroup,
-          id: updatedGroup._id,
+        data: {
+          editors: updatedGroup.editors,
+          members: updatedGroup.members,
         },
       });
     } catch (transactionError) {
