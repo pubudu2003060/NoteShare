@@ -380,7 +380,9 @@ const SidebarSection = ({ setEditGroup, editGroup, SetAddMembers }) => {
                               </div>
                             </div>
                             <button
-                              onClick={() => downgradeUser(editor.id, "member")}
+                              onClick={() =>
+                                downgradeUser(editor._id, "member")
+                              }
                               disabled={loading}
                               className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed"
                             >

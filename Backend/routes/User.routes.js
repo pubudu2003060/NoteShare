@@ -13,6 +13,7 @@ import {
   verifyAccessToken,
   verifyRefreshToken,
 } from "../middleware/JwtVerify.js";
+import { GroupAdminEditorAuth } from "../middleware/GroupAuth.js";
 
 const userRouter = express.Router();
 
@@ -26,10 +27,25 @@ userRouter.get("/test", verifyAccessToken, test);
 
 userRouter.get("/searchUsers", verifyAccessToken, searchUsers);
 
-userRouter.post("/addmembers", verifyAccessToken, addmembers);
+userRouter.post(
+  "/addmembers",
+  verifyAccessToken,
+  GroupAdminEditorAuth,
+  addmembers
+);
 
-userRouter.post("/upgradeuser", verifyAccessToken, upgradeUser);
+userRouter.post(
+  "/upgradeuser",
+  verifyAccessToken,
+  GroupAdminEditorAuth,
+  upgradeUser
+);
 
-userRouter.post("/downgradeuser", verifyAccessToken, downgradeUser);
+userRouter.post(
+  "/downgradeuser",
+  verifyAccessToken,
+  GroupAdminEditorAuth,
+  downgradeUser
+);
 
 export default userRouter;

@@ -8,6 +8,7 @@ import {
 } from "../controllers/Group.controller.js";
 import { verifyAccessToken } from "../middleware/JwtVerify.js";
 import upload from "../config/multer.js";
+import { GroupAdminAuth } from "../middleware/GroupAuth.js";
 
 const groupRouter = express.Router();
 
@@ -27,6 +28,7 @@ groupRouter.post(
 groupRouter.put(
   "/updategroup",
   verifyAccessToken,
+  GroupAdminAuth,
   upload.single("photo"),
   updateGroup
 );

@@ -70,6 +70,7 @@ const App = () => {
         <Routes>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/" element={<Navigate to="/home" />} />
           {isLogedIn ? (
             <>
               <Route path="/home" element={<Layout />}>
