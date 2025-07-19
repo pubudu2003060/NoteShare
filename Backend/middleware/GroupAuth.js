@@ -76,7 +76,7 @@ export const GroupAdminAuth = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error("Error in GroupAdminEditorAuth middleware:", error.message);
+    console.error("Error in GroupAdminAuth middleware:", error.message);
     return res.status(500).json({
       success: false,
       message: "Server error during group access check",

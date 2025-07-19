@@ -28,8 +28,8 @@ groupRouter.post(
 groupRouter.put(
   "/updategroup",
   verifyAccessToken,
-  GroupAdminAuth,
   upload.single("photo"),
+  GroupAdminAuth,
   updateGroup
 );
 

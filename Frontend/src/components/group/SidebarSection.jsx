@@ -517,22 +517,28 @@ const SidebarSection = ({ setEditGroup, editGroup, SetAddMembers }) => {
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <button
-                        onClick={() => upgradeUser(member._id)}
-                        disabled={loading}
-                        className="text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors p-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Promote to Editor"
-                      >
-                        <UserPlus size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleRemoveMember(member._id)}
-                        disabled={loading}
-                        className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Remove Member"
-                      >
-                        <UserMinus size={16} />
-                      </button>
+                      {accesslevel === "admin" ? (
+                        <>
+                          <button
+                            onClick={() => upgradeUser(member._id)}
+                            disabled={loading}
+                            className="text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors p-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Promote to Editor"
+                          >
+                            <UserPlus size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleRemoveMember(member._id)}
+                            disabled={loading}
+                            className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Remove Member"
+                          >
+                            <UserMinus size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <></>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -1,3 +1,4 @@
+import { deleteGroupImage } from "../middleware/DeleteClaudnaryFiles.js";
 import Group from "../models/Group.model.js";
 import User from "../models/User.model.js";
 
@@ -95,10 +96,12 @@ export const createGroup = async (req, res) => {
         message: "User not found",
       });
     }
+    console.log(req.file);
 
     const newGroup = new Group({
       name: name.trim(),
       photo: req.file.path,
+      photoPublicId: req.file.public_id,
       description: description.trim(),
       tags: JSON.parse(tags) || [],
       isPrivate: isPrivate || false,
@@ -218,7 +221,9 @@ export const updateGroup = async (req, res) => {
     }
 
     if (file) {
+      await deleteGroupImage(groupData.photoPublicId);
       updateFields.photo = file.path;
+      updateFields.photoPublicId = file.public_id;
     }
 
     const group = await Group.findByIdAndUpdate(
