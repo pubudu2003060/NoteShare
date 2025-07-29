@@ -260,37 +260,3 @@ export const updateGroup = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
-export const addFile = async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).send("No file uploaded");
-    }
-    const file = req.file;
-    res.status(200).json({
-      message: "File uploaded successfully",
-      file: file,
-      body: req.body,
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send(error.message);
-  }
-};
-
-export const deleteFile = async (req, res) => {
-  try {
-    const id = req.body.id;
-
-    const result = await deleteGroupImage(id);
-    console.log(result);
-
-    res.status(200).json({
-      result: result,
-      id: id,
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send(error.message);
-  }
-};

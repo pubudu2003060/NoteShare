@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { type } from "os";
 
 const noteSchema = mongoose.Schema(
   {
@@ -25,6 +26,10 @@ const noteSchema = mongoose.Schema(
           required: true,
         },
         url: {
+          type: String,
+          required: true,
+        },
+        publicId: {
           type: String,
           required: true,
         },

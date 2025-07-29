@@ -201,8 +201,8 @@ const NoteSection = ({ groupId }) => {
             ) : notes.length > 0 ? (
               <div className="max-h-65 md:max-h-120 overflow-y-auto  color-scrollbar">
                 {" "}
-                {notes.map((note, idx) => (
-                  <NoteCard key={idx} note={note} />
+                {notes.map((note, id) => (
+                  <NoteCard key={id} note={note} groupId={groupId} />
                 ))}
               </div>
             ) : (

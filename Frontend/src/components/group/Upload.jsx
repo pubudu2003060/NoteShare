@@ -86,10 +86,6 @@ const Upload = ({ onClose, groupId }) => {
       formData.append(`files`, file);
     });
 
-    for (let pair of formData.entries()) {
-      console.log(`${pair[0]}:`, pair[1]);
-    }
-
     try {
       const response = await longJWTAxios.post("/note/createnotes", formData, {
         headers: {

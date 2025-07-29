@@ -39,6 +39,9 @@ const Group = createSlice({
         members: action.payload.members,
       };
     },
+    deleteNote: (state, action) => {
+      state.note = state.note.filter((note) => note.id != action.payload);
+    },
   },
 });
 
@@ -50,5 +53,6 @@ export const {
   addMembers,
   unsetGroupData,
   updateUsersAndMembers,
+  deleteNote,
 } = Group.actions;
 export default Group.reducer;

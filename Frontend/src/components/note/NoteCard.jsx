@@ -1,18 +1,64 @@
 import React, { useState, useEffect } from "react";
 import { Delete, MoreVertical, Tag } from "lucide-react";
+import { JWTAxios } from "../../api/Axios";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { deleteNote } from "../../state/group/Group";
 
-const NoteCard = ({ note }) => {
-  const {
-    name = "Untitled Note",
-    description = "No description available",
-    tags = [],
-    content = [],
-    createdBy,
-  } = note;
+const NoteCard = ({ note, groupId }) => {
+  const dispatch = useDispatch();
+
+  const { id, name, description, tags, content, createdBy } = note;
 
   const [noteOptions, setNoteOptions] = useState(false);
 
-  const deleteNote = () => {};
+  const deleteItem = async () => {
+    try {
+      const result = await JWTAxios.delete("/note/deletenote", {
+        data: {
+          noteId: id,
+          groupId: groupId,
+        },
+      });
+
+      if (result.data.success) {
+        dispatch(deleteNote(result.data.noteId));
+
+        toast.success("Note Deleted.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      } else {
+        toast.error("Note deleted fail.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      }
+    } catch (error) {
+      toast.error("Note deleted fail.", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -44,6 +90,17 @@ const NoteCard = ({ note }) => {
         </div>
 
         <button
+          onClick={() => {
+            console.log("Delete button clicked");
+            deleteItem();
+          }}
+          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+        >
+          <Delete size={14} />
+          Delete Note
+        </button>
+
+        <button
           onClick={() => setNoteOptions(!noteOptions)}
           className="note-options-button p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
         >
@@ -56,7 +113,10 @@ const NoteCard = ({ note }) => {
         {noteOptions && (
           <div className="absolute right-0 top-5 md:top-7 mt-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg py-1 min-w-[160px] z-20">
             <button
-              onClick={deleteNote}
+              onClick={() => {
+                console.log("Delete button clicked");
+                deleteItem();
+              }}
               className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
             >
               <Delete size={14} />

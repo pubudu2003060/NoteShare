@@ -1,12 +1,10 @@
 import express from "express";
 import {
-  addFile,
   createGroup,
   getGroupfromId,
   getMyGroups,
   searchGroups,
   updateGroup,
-  deleteFile,
 } from "../controllers/Group.controller.js";
 import { verifyAccessToken } from "../middleware/JwtVerify.js";
 import upload from "../config/multer.js";
@@ -34,8 +32,5 @@ groupRouter.put(
   GroupAdminAuth,
   updateGroup
 );
-
-groupRouter.post("/addfile", upload.single("photo"), addFile);
-groupRouter.delete("/deletefile", deleteFile);
 
 export default groupRouter;

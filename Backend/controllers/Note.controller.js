@@ -1,3 +1,4 @@
+import { deleteCloudinaryItems } from "../middleware/DeleteClaudnaryFiles.js";
 import Note from "../models/Note.model.js";
 
 export const createNotes = async (req, res) => {
@@ -13,8 +14,10 @@ export const createNotes = async (req, res) => {
     }
 
     const uploadedContent = req.files.map((file) => {
+      console.log(file);
       const fileType = file.mimetype.split("/")[0];
       return {
+        publicId: file.filename,
         type: fileType,
         url: file.path,
       };
@@ -76,15 +79,59 @@ export const getNotesbyGroup = async (req, res) => {
         .json({ success: false, message: "No notes found for this group" });
     }
 
+    const sendNotes = notes.map((note) => ({
+      id: note._id,
+      name: note.name,
+      description: note.description,
+      tags: note.tags,
+      group: note.group,
+      content: note.content,
+      createdBy: note.createdBy,
+    }));
+
     res.status(200).json({
       success: true,
       message: "Note Load Successfully for the group",
-      notes,
+      notes: sendNotes,
     });
   } catch (error) {
     console.error("Error fetching notes:", error.message);
     res
       .status(500)
       .json({ success: false, message: "Server error while fetching notes" });
+  }
+};
+
+export const deleteNote = async (req, res) => {
+  try {
+    const noteId = req.body.noteId;
+
+    if (!noteId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "noteId is required" });
+    }
+
+    const note = await Note.findById(noteId);
+    if (!note) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Note not found" });
+    }
+
+    await Note.findByIdAndDelete(noteId);
+
+    if (note.content && note.content.length > 0) {
+      await Promise.all(
+        note.content.map((item) => deleteCloudinaryItems(item.publicId))
+      );
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Note deleted", noteId: noteId });
+  } catch (error) {
+    console.log("Note delete error: " + error.message);
+    res.status(500).json({ success: false, message: "Note delete error" });
   }
 };
