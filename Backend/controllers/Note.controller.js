@@ -55,7 +55,15 @@ export const createNotes = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "New note added successfully.",
-      note: savedNote,
+      note: {
+        id: savedNote._id,
+        name: savedNote.name,
+        description: savedNote.description,
+        tags: savedNote.tags,
+        group: savedNote.group,
+        content: savedNote.content,
+        createdBy: savedNote.createdBy,
+      },
     });
   } catch (error) {
     console.error("Error creating note:", error);

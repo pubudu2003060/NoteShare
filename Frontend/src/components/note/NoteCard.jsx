@@ -64,7 +64,8 @@ const NoteCard = ({ note, groupId }) => {
     const handleClickOutside = (event) => {
       if (
         !event.target.closest(".note-options-dropdown") &&
-        !event.target.closest(".note-options-button")
+        !event.target.closest(".note-options-button") &&
+        !event.target.closest(".delete-note-button")
       ) {
         setNoteOptions(false);
       }
@@ -81,24 +82,13 @@ const NoteCard = ({ note, groupId }) => {
       {/* Note Header */}
       <div className="relative flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-gray-100 ">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-gray-100">
             {name}
           </h2>
-          <span className="text-sm text-slate-700 dark:text-slate-300 ">
+          <span className="text-sm text-slate-700 dark:text-slate-300">
             By: {createdBy?.username || "Unknown User"}
           </span>
         </div>
-
-        <button
-          onClick={() => {
-            console.log("Delete button clicked");
-            deleteItem();
-          }}
-          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-        >
-          <Delete size={14} />
-          Delete Note
-        </button>
 
         <button
           onClick={() => setNoteOptions(!noteOptions)}
@@ -111,13 +101,13 @@ const NoteCard = ({ note, groupId }) => {
         </button>
 
         {noteOptions && (
-          <div className="absolute right-0 top-5 md:top-7 mt-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg py-1 min-w-[160px] z-20">
+          <div className="note-options-dropdown absolute right-0 top-5 md:top-7 mt-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg py-1 min-w-[160px] z-20">
             <button
               onClick={() => {
-                console.log("Delete button clicked");
+                console.log("Delete button clicked for note ID:", id);
                 deleteItem();
               }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors delete-note-button"
             >
               <Delete size={14} />
               Delete Note
