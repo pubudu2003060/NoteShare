@@ -46,6 +46,8 @@ const NoteCard = ({ note, groupId }) => {
           theme: "dark",
         });
       }
+
+      setNoteOptions(false);
     } catch (error) {
       toast.error("Note deleted fail.", {
         position: "top-center",

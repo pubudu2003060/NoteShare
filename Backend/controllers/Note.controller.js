@@ -14,7 +14,6 @@ export const createNotes = async (req, res) => {
     }
 
     const uploadedContent = req.files.map((file) => {
-      console.log(file);
       const fileType = file.mimetype.split("/")[0];
       return {
         publicId: file.filename,

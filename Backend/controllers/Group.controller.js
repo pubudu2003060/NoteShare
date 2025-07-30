@@ -271,21 +271,28 @@ export const deleteGroup = async (req, res) => {
 
     const group = await Group.findById(groupId);
     if (!group) {
-      res.status(404).json({ success: false, message: "Group delete failed" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Group delete failed" });
     }
 
     const notes = await Note.find({ group: groupId });
 
-    if (notes) {
+    if (notes.length > 0) {
       await Note.deleteMany({ group: groupId });
-    }
 
-    if (notes.content && notes.content.length > 0) {
-      await Promise.all(
-        notes.content.map((item) => deleteCloudinaryItems(item.publicId))
+      const cloudinaryPromises = notes.flatMap((note) =>
+        note.content && note.content.length > 0
+          ? note.content.map((item) => deleteCloudinaryItems(item.publicId))
+          : []
       );
+      if (cloudinaryPromises.length > 0) {
+        await Promise.all(cloudinaryPromises);
+        console.log("deleted");
+      }
     }
 
+    await deleteCloudinaryItems(group.photoPublicId);
     await Group.findByIdAndDelete(groupId);
 
     res
