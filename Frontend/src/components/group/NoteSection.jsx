@@ -44,7 +44,7 @@ const NoteSection = ({ groupId }) => {
         });
         if (notesResponse.data.success) {
           dispatch(setNotes(notesResponse.data.notes));
-          setUpdatedNotes(notesRepo);
+          setUpdatedNotes(notesResponse.data.notes);
         }
       } catch (error) {
         console.error("Error loading   notes:", error.message);
@@ -56,7 +56,7 @@ const NoteSection = ({ groupId }) => {
     if (groupId) {
       fetchNoteData();
     }
-  }, [groupId]);
+  }, [groupId, notesRepo]);
 
   const handleUploadFromMachine = () => {
     setShowNoteOptions(false);
