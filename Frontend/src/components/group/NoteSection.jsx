@@ -242,13 +242,15 @@ const NoteSection = ({ groupId }) => {
                         <Share2 size={14} />
                         Share Group
                       </button>
-                      <button
-                        onClick={deleteGroup}
-                        className="group-actions-delete flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 "
-                      >
-                        <Delete size={14} />
-                        Delete Group
-                      </button>
+                      {accesslevel === "admin" && (
+                        <button
+                          onClick={deleteGroup}
+                          className="group-actions-delete flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 "
+                        >
+                          <Delete size={14} />
+                          Delete Group
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
