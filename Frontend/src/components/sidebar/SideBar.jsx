@@ -85,7 +85,7 @@ const SideBar = () => {
                   className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-900/20 hover:text-white dark:hover:text-blue-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
                   onClick={() => setIsOpen(false)}
                 >
-                  <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <Lock className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   <span className="hidden sm:block md:block">My Groups</span>
                   <span className="block sm:hidden md:hidden text-xs">
                     My Groups
@@ -94,16 +94,16 @@ const SideBar = () => {
               </li>
               <li>
                 <Link
-                  to="publicgroups"
+                  to="editorgroups"
                   className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-green-900/20 hover:text-white dark:hover:text-green-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
                   onClick={() => setIsOpen(false)}
                 >
                   <Globe className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   <span className="hidden sm:block md:block">
-                    Public Groups
+                    Editor Groups
                   </span>
                   <span className="block sm:hidden md:hidden text-xs">
-                    Public
+                    Editor Groups
                   </span>
                 </Link>
               </li>
@@ -113,7 +113,7 @@ const SideBar = () => {
                   className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-purple-900/20 hover:text-white dark:hover:text-purple-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
                   onClick={() => setIsOpen(false)}
                 >
-                  <Lock className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   <span className="hidden sm:block md:block">
                     Private Groups
                   </span>

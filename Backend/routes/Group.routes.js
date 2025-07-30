@@ -2,6 +2,7 @@ import express from "express";
 import {
   createGroup,
   deleteGroup,
+  getEditorGroups,
   getGroupfromId,
   getMyGroups,
   searchGroups,
@@ -16,6 +17,8 @@ const groupRouter = express.Router();
 groupRouter.get("/searchgroups", verifyAccessToken, searchGroups);
 
 groupRouter.post("/getmygroups", verifyAccessToken, getMyGroups);
+
+groupRouter.post("/geteditorgroups", verifyAccessToken, getEditorGroups);
 
 groupRouter.get("/getgroupfromid", verifyAccessToken, getGroupfromId);
 

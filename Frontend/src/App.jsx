@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { JWTAxios } from "./api/Axios";
 import { addUserData, logedIn } from "./state/user/UserSlice";
+import EditorGroups from "./screens/editorGroups/EditorGroups";
 
 const App = () => {
   const isLogedIn = useSelector((state) => state.user.isLogedIn);
@@ -76,7 +77,7 @@ const App = () => {
               <Route path="/home" element={<Layout />}>
                 <Route index element={<Home />} />
                 <Route path="mygroups" element={<MyGroups />} />
-                <Route path="publicgroups" element={<PublicGroups />} />
+                <Route path="editorgroups" element={<EditorGroups />} />
                 <Route path="privategroups" element={<PrivateGroups />} />
                 <Route path="stared" element={<Stared />} />
                 <Route path="profile" element={<Profile />} />

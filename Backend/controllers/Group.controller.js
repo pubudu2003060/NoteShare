@@ -81,6 +81,38 @@ export const getMyGroups = async (req, res) => {
   }
 };
 
+export const getEditorGroups = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const groups = await Group.find({ editors: userId }).sort({
+      createdAt: -1,
+    });
+
+    const formattedGroups = groups.map((group) => ({
+      id: group._id,
+      name: group.name,
+      photo: group.photo,
+      description: group.description,
+      tags: group.tags,
+      isPrivate: group.isPrivate,
+      members: group.members?.length + group.editors?.length || 0,
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "Groups retrieved successfully",
+      data: formattedGroups,
+    });
+  } catch (error) {
+    console.error("Error fetching editor groups:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch groups",
+    });
+  }
+};
+
 export const createGroup = async (req, res) => {
   try {
     const { name, description, tags, isPrivate } = req.body;
