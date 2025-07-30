@@ -18,15 +18,18 @@ import { JWTAxios } from "../../api/Axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setNotes } from "../../state/group/Group";
 import Uploadform from "../../components/group/Upload";
+import { toast } from "react-toastify";
 
 const NoteSection = ({ groupId }) => {
   const groupData = useSelector((state) => state.Group.data);
   const accesslevel = useSelector((state) => state.Group.data.accesslevel);
   const [notesLoading, setNotesLoading] = useState(true);
-  const notes = useSelector((state) => state.Group.note);
+  const notesRepo = useSelector((state) => state.Group.note);
+  const [notes, setUpdatedNotes] = useState();
   const [showGroupActions, setShowGroupActions] = useState(false);
   const [showNoteOptions, setShowNoteOptions] = useState(false);
   const [newNote, setNewNote] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const dispatch = useDispatch();
 
@@ -38,6 +41,7 @@ const NoteSection = ({ groupId }) => {
         });
         if (notesResponse.data.success) {
           dispatch(setNotes(notesResponse.data.notes));
+          setUpdatedNotes(notesResponse.data.notes);
         }
       } catch (error) {
         console.error("Error loading   notes:", error.message);
@@ -64,14 +68,10 @@ const NoteSection = ({ groupId }) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        !event.target.closest(".note-options-dropdown") &&
-        !event.target.closest(".add-note-button")
-      ) {
-        setShowNoteOptions(false);
-      }
-      if (
         !event.target.closest(".group-actions-dropdown") &&
-        !event.target.closest(".group-actions-button")
+        !event.target.closest(".group-actions-button") &&
+        !event.target.closest(".group-actions-share") &&
+        !event.target.closest(".group-actions-delete")
       ) {
         setShowGroupActions(false);
       }
@@ -84,7 +84,63 @@ const NoteSection = ({ groupId }) => {
   }, []);
 
   const deleteGroup = () => {};
-  const shareGroup = () => {};
+  const shareGroup = () => {
+    const currentUrl = window.location.href;
+    if (!navigator.clipboard.writeText) {
+      setShowGroupActions(false);
+      toast.error("Copied fail.", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
+    setShowGroupActions(false);
+    navigator.clipboard.writeText(currentUrl);
+    toast.success("Copied.", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
+  useEffect(() => {
+    const searchNote = () => {
+      if (searchTerm.trim() === "") {
+        setUpdatedNotes(notesRepo);
+        return;
+      }
+
+      const filteredNotes = notesRepo.filter((note) => {
+        const searchLower = searchTerm.toLowerCase;
+        return (
+          note.name.toLowerCase().includes(searchLower) ||
+          note.description.toLowerCase().includes(searchLower) ||
+          (note.tags &&
+            note.tags.some((tag) => tag.toLowerCase().includes(searchLower)))
+        );
+      });
+
+      setUpdatedNotes(filteredNotes);
+    };
+
+    const timer = setTimeout(() => {
+      searchNote();
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchTerm]);
 
   return (
     <>
@@ -126,7 +182,7 @@ const NoteSection = ({ groupId }) => {
                 <div className="relative">
                   <button
                     onClick={() => setShowGroupActions(!showGroupActions)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors group-actions-buttton"
                   >
                     <MoreVertical
                       size={16}
@@ -135,17 +191,19 @@ const NoteSection = ({ groupId }) => {
                   </button>
 
                   {showGroupActions && (
-                    <div className="absolute right-0 top-full mt-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg py-1 min-w-[160px] z-20">
+                    <div className="group-actions-dropdown absolute right-0 top-full mt-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg py-1 min-w-[160px]">
                       <button
-                        onclick={shareGroup}
-                        className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600"
+                        onClick={() => {
+                          shareGroup();
+                        }}
+                        className="group-actions-share flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600  z-20"
                       >
                         <Share2 size={14} />
                         Share Group
                       </button>
                       <button
-                        onclick={deleteGroup}
-                        className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600"
+                        onClick={deleteGroup}
+                        className="group-actions-delete flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 z-20"
                       >
                         <Delete size={14} />
                         Delete Group
@@ -176,10 +234,12 @@ const NoteSection = ({ groupId }) => {
               <div className="relative">
                 <Search
                   size={16}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 cursor-pointer"
                 />
                 <input
                   type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search notes..."
                   className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                 />
