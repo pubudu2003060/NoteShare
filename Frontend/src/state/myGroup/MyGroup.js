@@ -14,8 +14,12 @@ const MyGRoup = createSlice({
     addNewMyGroup: (state, action) => {
       state.data = [action.payload, ...state.data];
     },
+    deleteMyGroup: (state, action) => {
+      state.data = state.data.filter((group) => group.id != action.payload);
+    },
   },
 });
 
-export const { loadMyGroupData, addNewMyGroup } = MyGRoup.actions;
+export const { loadMyGroupData, addNewMyGroup, deleteMyGroup } =
+  MyGRoup.actions;
 export default MyGRoup.reducer;

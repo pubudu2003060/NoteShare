@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createGroup,
+  deleteGroup,
   getGroupfromId,
   getMyGroups,
   searchGroups,
@@ -31,6 +32,13 @@ groupRouter.put(
   upload.single("photo"),
   GroupAdminAuth,
   updateGroup
+);
+
+groupRouter.delete(
+  "/deletegroup",
+  verifyAccessToken,
+  GroupAdminAuth,
+  deleteGroup
 );
 
 export default groupRouter;

@@ -1,5 +1,9 @@
-import { deleteGroupImage } from "../middleware/DeleteClaudnaryFiles.js";
+import {
+  deleteCloudinaryItems,
+  deleteGroupImage,
+} from "../middleware/DeleteClaudnaryFiles.js";
 import Group from "../models/Group.model.js";
+import Note from "../models/Note.model.js";
 import User from "../models/User.model.js";
 
 export const searchGroups = async (req, res) => {
@@ -258,5 +262,37 @@ export const updateGroup = async (req, res) => {
   } catch (error) {
     console.error("Error updating group:", error.message);
     return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+export const deleteGroup = async (req, res) => {
+  try {
+    const groupId = req.body.groupId;
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      res.status(404).json({ success: false, message: "Group delete failed" });
+    }
+
+    const notes = await Note.find({ group: groupId });
+
+    if (notes) {
+      await Note.deleteMany({ group: groupId });
+    }
+
+    if (notes.content && notes.content.length > 0) {
+      await Promise.all(
+        notes.content.map((item) => deleteCloudinaryItems(item.publicId))
+      );
+    }
+
+    await Group.findByIdAndDelete(groupId);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Group deleted", groupId: groupId });
+  } catch (error) {
+    console.log("Group delete error:" + error.message);
+    res.status(500).json({ success: false, message: "Group delete failed" });
   }
 };

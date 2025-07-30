@@ -19,19 +19,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { setNotes } from "../../state/group/Group";
 import Uploadform from "../../components/group/Upload";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { deleteMyGroup } from "../../state/myGroup/MyGroup";
 
 const NoteSection = ({ groupId }) => {
   const groupData = useSelector((state) => state.Group.data);
   const accesslevel = useSelector((state) => state.Group.data.accesslevel);
   const [notesLoading, setNotesLoading] = useState(true);
   const notesRepo = useSelector((state) => state.Group.note);
-  const [notes, setUpdatedNotes] = useState();
+  const [notes, setUpdatedNotes] = useState([]);
   const [showGroupActions, setShowGroupActions] = useState(false);
   const [showNoteOptions, setShowNoteOptions] = useState(false);
   const [newNote, setNewNote] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNoteData = async () => {
@@ -41,7 +44,7 @@ const NoteSection = ({ groupId }) => {
         });
         if (notesResponse.data.success) {
           dispatch(setNotes(notesResponse.data.notes));
-          setUpdatedNotes(notesResponse.data.notes);
+          setUpdatedNotes(notesRepo);
         }
       } catch (error) {
         console.error("Error loading   notes:", error.message);
@@ -83,7 +86,45 @@ const NoteSection = ({ groupId }) => {
     };
   }, []);
 
-  const deleteGroup = () => {};
+  const deleteGroup = async () => {
+    try {
+      const responce = await JWTAxios.delete("/group/deletegroup", {
+        data: {
+          groupId: groupId,
+        },
+      });
+
+      if (responce.data.success) {
+        dispatch(deleteMyGroup(groupId));
+
+        navigate("/home/mygroups");
+
+        toast.success("Group delete Successfull.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      }
+    } catch (error) {
+      console.log(error.message);
+      toast.error("Group delete fail.", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
+  };
+
   const shareGroup = () => {
     const currentUrl = window.location.href;
     if (!navigator.clipboard.writeText) {
@@ -121,7 +162,7 @@ const NoteSection = ({ groupId }) => {
       }
 
       const filteredNotes = notesRepo.filter((note) => {
-        const searchLower = searchTerm.toLowerCase;
+        const searchLower = searchTerm.toLowerCase();
         return (
           note.name.toLowerCase().includes(searchLower) ||
           note.description.toLowerCase().includes(searchLower) ||
@@ -191,19 +232,19 @@ const NoteSection = ({ groupId }) => {
                   </button>
 
                   {showGroupActions && (
-                    <div className="group-actions-dropdown absolute right-0 top-full mt-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg py-1 min-w-[160px]">
+                    <div className="group-actions-dropdown absolute right-0 top-full mt-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg py-1 min-w-[160px] z-20">
                       <button
                         onClick={() => {
                           shareGroup();
                         }}
-                        className="group-actions-share flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600  z-20"
+                        className="group-actions-share flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600  "
                       >
                         <Share2 size={14} />
                         Share Group
                       </button>
                       <button
                         onClick={deleteGroup}
-                        className="group-actions-delete flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 z-20"
+                        className="group-actions-delete flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 "
                       >
                         <Delete size={14} />
                         Delete Group
