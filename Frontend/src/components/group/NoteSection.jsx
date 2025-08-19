@@ -217,7 +217,7 @@ const NoteSection = ({ groupId }) => {
     return () => {
       clearTimeout(timer);
     };
-  }, [searchTerm]);
+  }, [searchTerm, notesRepo]);
 
   return (
     <>
