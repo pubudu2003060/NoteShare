@@ -228,8 +228,6 @@ export const getGroupfromId = async (req, res) => {
       });
     }
 
-    console.log(group);
-
     if (group.admin._id.equals(userId)) {
       accesslevel = "admin";
     } else if (group.editors.some((editor) => editor._id.equals(userId))) {
@@ -291,7 +289,7 @@ export const updateGroup = async (req, res) => {
 
     if (file) {
       const result = await deleteGroupImage(groupData.photoPublicId);
-      console.log(result);
+
       if (result.result != "ok") {
         return res
           .status(500)
@@ -354,7 +352,6 @@ export const deleteGroup = async (req, res) => {
       );
       if (cloudinaryPromises.length > 0) {
         await Promise.all(cloudinaryPromises);
-        console.log("deleted");
       }
     }
 

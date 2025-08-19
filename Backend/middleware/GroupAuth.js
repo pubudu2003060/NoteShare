@@ -109,6 +109,8 @@ export const deleteNoteAuth = async (req, res, next) => {
 
     const note = await Note.findById(noteId);
 
+    console.log(note);
+
     const isAdmin = group.admin._id.equals(userId);
     const isEditor = group.editors.some((editor) => editor._id.equals(userId));
     const isCreater = note.createdBy.equals(userId);
