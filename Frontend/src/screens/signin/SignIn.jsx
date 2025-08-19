@@ -29,7 +29,7 @@ const SignIn = () => {
     e.preventDefault();
 
     await freeAxios
-      .post("/user/signin", formData)
+      .post("/auth/signin", formData)
       .then((responce) => {
         if (responce.data.success) {
           const accessToken = responce.data.accessToken;

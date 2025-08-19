@@ -48,7 +48,7 @@ const SignUp = () => {
     }
 
     await freeAxios
-      .post("/user/signup", formData)
+      .post("/auth/signup", formData)
       .then((responce) => {
         if (responce.data.success) {
           const accessToken = responce.data.accessToken;

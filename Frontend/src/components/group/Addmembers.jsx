@@ -5,7 +5,7 @@ import { JWTAxios } from "../../api/Axios";
 import { useDispatch, useSelector } from "react-redux";
 import { addMembers } from "../../state/group/Group";
 
-const AddMembers = ({ onClose }) => {
+const AddMembers = ({ onClose, groupId }) => {
   const groupData = useSelector((state) => state.Group.data);
   const dispatch = useDispatch();
 
@@ -35,8 +35,11 @@ const AddMembers = ({ onClose }) => {
     setIsSearching(true);
     setHasSearched(true);
     try {
-      const response = await JWTAxios.get(
-        `/user/searchUsers?query=${searchTerm.trim()}`
+      const response = await JWTAxios.post(
+        `/user/searchUsers?query=${searchTerm.trim()}`,
+        {
+          groupId,
+        }
       );
 
       if (response.data.success) {

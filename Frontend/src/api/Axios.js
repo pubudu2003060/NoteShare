@@ -74,7 +74,7 @@ JWTAxios.interceptors.response.use(
         }
 
         const res = await freeAxios.post(
-          "/user/refreshaccesstoken",
+          "/auth/refreshaccesstoken",
           { refreshToken },
           {
             headers: {
@@ -120,7 +120,7 @@ longJWTAxios.interceptors.response.use(
         }
 
         const res = await freeAxios.post(
-          "/user/refreshaccesstoken",
+          "/auth/refreshaccesstoken",
           { refreshToken },
           {
             headers: {

@@ -4,6 +4,7 @@ import Note from "../models/Note.model.js";
 export const GroupAdminEditorAuth = async (req, res, next) => {
   try {
     const userId = req.user._id;
+
     const groupId = req.body.groupId;
 
     if (!groupId) {

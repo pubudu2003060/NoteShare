@@ -32,7 +32,7 @@ const App = () => {
         return;
       }
       try {
-        const responce = await JWTAxios.get("/user/test", { userId });
+        const responce = await JWTAxios.get("/auth/test", { userId });
         if (responce.data.success) {
           dispatch(addUserData(responce.data.user));
           dispatch(logedIn());

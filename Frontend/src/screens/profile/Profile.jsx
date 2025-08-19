@@ -19,6 +19,7 @@ import {
   Award,
   Clock,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const mockUser = {
   id: "123",
@@ -35,6 +36,8 @@ const mockUser = {
 const Profile = () => {
   // Mock user data - in real app this would come from Redux store
   const [user, setUser] = useState(mockUser);
+
+  const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);

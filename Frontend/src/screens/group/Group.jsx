@@ -111,7 +111,9 @@ const Group = () => {
         />
       )}
 
-      {addMembers && <AddMembers onClose={() => SetAddMembers(false)} s />}
+      {addMembers && (
+        <AddMembers onClose={() => SetAddMembers(false)} groupId={groupId} />
+      )}
     </>
   );
 };

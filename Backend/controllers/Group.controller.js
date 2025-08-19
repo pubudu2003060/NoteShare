@@ -1,7 +1,4 @@
-import {
-  deleteCloudinaryItems,
-  deleteGroupImage,
-} from "../middleware/DeleteClaudnaryFiles.js";
+import { deleteCloudinaryItems } from "../middleware/DeleteClaudnaryFiles.js";
 import Group from "../models/Group.model.js";
 import Note from "../models/Note.model.js";
 import User from "../models/User.model.js";
@@ -288,7 +285,7 @@ export const updateGroup = async (req, res) => {
     }
 
     if (file) {
-      const result = await deleteGroupImage(groupData.photoPublicId);
+      const result = await deleteCloudinaryItems(groupData.photoPublicId);
 
       if (result.result != "ok") {
         return res
@@ -337,7 +334,7 @@ export const deleteGroup = async (req, res) => {
     if (!group) {
       return res
         .status(404)
-        .json({ success: false, message: "Group delete failed" });
+        .json({ success: false, message: "Group not found" });
     }
 
     const notes = await Note.find({ group: groupId });

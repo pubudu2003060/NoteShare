@@ -5,6 +5,7 @@ import userRouter from "./routes/User.routes.js";
 import cors from "cors";
 import noteRouter from "./routes/Note.routes.js";
 import groupRouter from "./routes/Group.routes.js";
+import auth from "./routes/Auth.routes.js";
 
 const app = express();
 
@@ -16,7 +17,6 @@ app.use(
     credentials: true,
   })
 );
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -25,6 +25,8 @@ app.use("/api/user", userRouter);
 app.use("/api/note", noteRouter);
 
 app.use("/api/group", groupRouter);
+
+app.use("/api/auth", auth);
 
 const PORT = process.env.PORT || 3000;
 
