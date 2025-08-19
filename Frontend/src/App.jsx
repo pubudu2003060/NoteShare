@@ -1,7 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import NoPage from "./screens/NoPage";
-import Profile from "./screens/Profile";
-import About from "./screens/About";
+import About from "./screens/about/About";
 import Layout from "./components/layout/Layout";
 import SignIn from "./screens/signin/SignIn";
 import SignUp from "./screens/signup/SignUp";
@@ -16,6 +15,7 @@ import { JWTAxios } from "./api/Axios";
 import { addUserData, logedIn } from "./state/user/UserSlice";
 import EditorGroups from "./screens/editorGroups/EditorGroups";
 import UserGroups from "./screens/userGroups/UserGroups";
+import Profile from "./screens/profile/Profile";
 
 const App = () => {
   const isLogedIn = useSelector((state) => state.user.isLogedIn);

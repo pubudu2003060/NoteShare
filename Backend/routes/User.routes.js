@@ -8,6 +8,7 @@ import {
   addmembers,
   upgradeUser,
   downgradeUser,
+  addToTheGroup,
 } from "../controllers/User.controller.js";
 import {
   verifyAccessToken,
@@ -47,5 +48,7 @@ userRouter.post(
   GroupAdminEditorAuth,
   downgradeUser
 );
+
+userRouter.post("/addtothegroup", verifyAccessToken, addToTheGroup);
 
 export default userRouter;

@@ -24,6 +24,9 @@ import { deleteMyGroup } from "../../state/myGroup/MyGroup";
 const NoteSection = ({ groupId }) => {
   const groupData = useSelector((state) => state.Group.data);
   const accesslevel = useSelector((state) => state.Group.data.accesslevel);
+  const isPrivate = useSelector((state) => state.Group.data.isPrivate);
+  console.log(isPrivate);
+  console.log(accesslevel);
   const [notesLoading, setNotesLoading] = useState(true);
   const notesRepo = useSelector((state) => state.Group.note);
   const [notes, setUpdatedNotes] = useState([]);
@@ -225,6 +228,51 @@ const NoteSection = ({ groupId }) => {
     };
   }, [searchTerm, notesRepo]);
 
+  const handleAddtotheGroup = async () => {
+    try {
+      const response = await JWTAxios.post("/user/addtothegroup", {
+        groupId: groupId,
+      });
+
+      if (response.data.success) {
+        toast.success("You have been added to the group!", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+        navigate(0);
+      } else {
+        toast.error(response.data.message || "Failed to join group.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      }
+    } catch (error) {
+      console.error("Join group error:", error.message);
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
+  };
+
   return (
     <>
       <div className="flex-1 lg:w-2/3 ">
@@ -344,12 +392,22 @@ const NoteSection = ({ groupId }) => {
                 </div>
               </div>
             ) : notes.length > 0 ? (
-              <div className="max-h-65 md:max-h-120 overflow-y-auto  color-scrollbar">
-                {" "}
-                {notes.map((note, id) => (
-                  <NoteCard key={id} note={note} groupId={groupId} />
-                ))}
-              </div>
+              isPrivate == "true" || accesslevel != "none" ? (
+                <div className="max-h-65 md:max-h-120 overflow-y-auto  color-scrollbar">
+                  {" "}
+                  {notes.map((note, id) => (
+                    <NoteCard key={id} note={note} groupId={groupId} />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-40">
+                  <p className="text-red-500 font-semibold">
+                    {`This is a ${
+                      isPrivate ? "private" : "public"
+                    } Group.Add to the group to see the content`}
+                  </p>
+                </div>
+              )
             ) : (
               <div className="text-center py-16">
                 <div className="text-gray-300 dark:text-slate-600 mb-6">
@@ -432,7 +490,26 @@ const NoteSection = ({ groupId }) => {
               </div>
             </div>
           ) : (
-            <></>
+            <>
+              <div className="absolute bottom-6 right-6 z-20">
+                <div className="relative">
+                  <button
+                    onClick={handleAddtotheGroup}
+                    className={
+                      "note-actions-button add-note-button bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group"
+                    }
+                  >
+                    <Plus
+                      size={20}
+                      className={"transition-transform duration-200"}
+                    />
+                    <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 dark:bg-slate-700 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      Add to the Group
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>

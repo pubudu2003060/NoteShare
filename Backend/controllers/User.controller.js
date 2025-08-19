@@ -3,7 +3,6 @@ import Group from "../models/Group.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
-import { response } from "express";
 
 export const signUpUser = async (req, res) => {
   try {
@@ -468,5 +467,56 @@ export const test = (req, res) => {
   } catch (error) {
     console.log("test error " + error.message);
     res.status(400).json({ success: fail, message: "try fail" });
+  }
+};
+
+export const addToTheGroup = async (req, res) => {
+  try {
+    const user = req.user;
+    const groupId = req.body.groupId;
+
+    const group = await Group.findById(groupId)
+      .populate("admin")
+      .populate("editors")
+      .populate("members");
+
+    if (!group) {
+      res.status(404).json({ success: false, message: "Group not found" });
+    }
+
+    const isAdmin = group.admin._id.equals(user._id);
+    const isEditor = group.editors.some((editor) =>
+      editor._id.equals(user._id)
+    );
+    const isMember = group.members.some((member) =>
+      member._id.equals(user._id)
+    );
+
+    if (isAdmin || isEditor || isMember) {
+      res
+        .status(500)
+        .json({ success: false, message: "User is already in this group" });
+    }
+
+    if (group.isPrivate) {
+      return res.status(200).json({
+        success: false,
+        message: "This is a private group.Wait admin aprove your request",
+      });
+    }
+
+    group.members.push(user._id);
+    await group.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "User added to group successfully",
+    });
+  } catch (error) {
+    console.error("Add to group error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
   }
 };
