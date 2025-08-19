@@ -7,7 +7,6 @@ import Card from "../../components/card/Card";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchKeyword, setSearchKeyword] = useState("");
   const [showPublic, setShowPublic] = useState(true);
   const [showPrivate, setShowPrivate] = useState(true);
   const [filteredData, setFilteredData] = useState([]);
@@ -18,7 +17,7 @@ const Home = () => {
     setIsLoading(true);
     try {
       const response = await JWTAxios.get(
-        `/group/searchgroups?keyword=${searchKeyword}`
+        `/group/searchgroups?keyword=${searchTerm}`
       );
 
       if (response.data.success) {
@@ -34,8 +33,13 @@ const Home = () => {
   };
 
   useEffect(() => {
-    fetchGroups();
-  }, [searchKeyword]);
+    const timer = setTimeout(() => {
+      fetchGroups();
+    }, 300);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchTerm]);
 
   useEffect(() => {
     const filtered = allGroups.filter((item) => {
@@ -51,16 +55,6 @@ const Home = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handleSearch = () => {
-    setSearchKeyword(searchTerm);
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
-
   const handlePublicChange = (e) => {
     setShowPublic(e.target.checked);
   };
@@ -68,10 +62,6 @@ const Home = () => {
   const handlePrivateChange = (e) => {
     setShowPrivate(e.target.checked);
   };
-
-  useEffect(() => {
-    setSearchKeyword("");
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 md:p-6">
@@ -110,12 +100,10 @@ const Home = () => {
               id="search"
               value={searchTerm}
               onChange={handleSearchChange}
-              onKeyPress={handleKeyPress}
               placeholder="Search groups..."
               className="w-full pl-12 pr-16 py-4 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-slate-400 transition-all duration-300 shadow-sm hover:shadow-md"
             />
             <button
-              onClick={handleSearch}
               disabled={isLoading}
               className="absolute inset-y-0 right-0 pr-3 flex items-center"
             >
