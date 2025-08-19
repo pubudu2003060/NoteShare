@@ -11,7 +11,6 @@ import {
   Upload,
   FileText,
   Delete,
-  ArrowLeft,
 } from "lucide-react";
 import NoteCard from "../note/NoteCard";
 import { JWTAxios } from "../../api/Axios";
@@ -56,7 +55,7 @@ const NoteSection = ({ groupId }) => {
     if (groupId) {
       fetchNoteData();
     }
-  }, [groupId, notesRepo]);
+  }, [groupId]);
 
   const handleUploadFromMachine = () => {
     setShowNoteOptions(false);
