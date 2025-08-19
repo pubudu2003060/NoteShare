@@ -69,13 +69,19 @@ const NoteSection = ({ groupId }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
+      console.log("clicked");
       if (
         !event.target.closest(".group-actions-dropdown") &&
         !event.target.closest(".group-actions-button") &&
         !event.target.closest(".group-actions-share") &&
-        !event.target.closest(".group-actions-delete")
+        !event.target.closest(".group-actions-delete") &&
+        !event.target.closest(".note-actions-dropdown") &&
+        !event.target.closest(".note-actions-button") &&
+        !event.target.closest(".note-actions-matchine") &&
+        !event.target.closest(".note-actions-createnote")
       ) {
         setShowGroupActions(false);
+        setShowNoteOptions(false);
       }
     };
 
@@ -365,10 +371,10 @@ const NoteSection = ({ groupId }) => {
               <div className="relative">
                 {/* Note Options Dropdown */}
                 {showNoteOptions && (
-                  <div className="note-options-dropdown absolute bottom-full right-0 mb-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg py-2 min-w-[200px]">
+                  <div className="note-actions-dropdown absolute bottom-full right-0 mb-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg py-2 min-w-[200px]">
                     <button
                       onClick={handleCreateNote}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
+                      className="note-actions-createnote flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
                     >
                       <div className="bg-blue-100 dark:bg-blue-900/30 p-1.5 rounded-md">
                         <FileText
@@ -386,7 +392,7 @@ const NoteSection = ({ groupId }) => {
 
                     <button
                       onClick={handleUploadFromMachine}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
+                      className="note-actions-matchine flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors"
                     >
                       <div className="bg-green-100 dark:bg-green-900/30 p-1.5 rounded-md">
                         <Upload
@@ -407,7 +413,7 @@ const NoteSection = ({ groupId }) => {
                 {/* Main Add Note Button */}
                 <button
                   onClick={() => setShowNoteOptions(!showNoteOptions)}
-                  className={`add-note-button bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group ${
+                  className={`note-actions-button add-note-button bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group ${
                     showNoteOptions
                       ? "scale-110 bg-blue-700 dark:bg-blue-600"
                       : ""
