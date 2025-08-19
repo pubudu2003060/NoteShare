@@ -120,19 +120,6 @@ const SideBar = () => {
                   </span>
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="stared"
-                  className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-yellow-900/20 hover:text-white dark:hover:text-yellow-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Star className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  <span className="hidden sm:block md:block">Starred</span>
-                  <span className="block sm:hidden md:hidden text-xs">
-                    Star
-                  </span>
-                </Link>
-              </li>
             </ul>
           </nav>
 

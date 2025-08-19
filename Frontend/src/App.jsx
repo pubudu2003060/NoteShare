@@ -1,6 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import NoPage from "./screens/NoPage";
-import Stared from "./screens/Stared";
 import Profile from "./screens/Profile";
 import About from "./screens/About";
 import Layout from "./components/layout/Layout";
@@ -78,7 +77,6 @@ const App = () => {
                 <Route path="mygroups" element={<MyGroups />} />
                 <Route path="editorgroups" element={<EditorGroups />} />
                 <Route path="usergroups" element={<UserGroups />} />
-                <Route path="stared" element={<Stared />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="about" element={<About />} />
                 <Route path="group" element={<Group />} />
