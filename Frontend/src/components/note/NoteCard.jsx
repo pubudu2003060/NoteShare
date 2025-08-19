@@ -13,28 +13,43 @@ const NoteCard = ({ note, groupId }) => {
   const [noteOptions, setNoteOptions] = useState(false);
 
   const deleteItem = async () => {
-    try {
-      const result = await JWTAxios.delete("/note/deletenote", {
-        data: {
-          noteId: id,
-          groupId: groupId,
-        },
-      });
-
-      if (result.data.success) {
-        dispatch(deleteNote(result.data.noteId));
-
-        toast.success("Note Deleted.", {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
+    const deleteIt = async () => {
+      try {
+        const result = await JWTAxios.delete("/note/deletenote", {
+          data: {
+            noteId: id,
+            groupId: groupId,
+          },
         });
-      } else {
+
+        if (result.data.success) {
+          dispatch(deleteNote(result.data.noteId));
+
+          toast.success("Note Deleted.", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        } else {
+          toast.error("Note deleted fail.", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        }
+
+        setNoteOptions(false);
+      } catch (error) {
         toast.error("Note deleted fail.", {
           position: "top-center",
           autoClose: 5000,
@@ -46,10 +61,32 @@ const NoteCard = ({ note, groupId }) => {
           theme: "dark",
         });
       }
+    };
 
-      setNoteOptions(false);
-    } catch (error) {
-      toast.error("Note deleted fail.", {
+    toast.success(
+      <div className="flex flex-col gap-2">
+        <p>Are you sure you want to delete this group?</p>
+        <div className="flex gap-2">
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            onClick={() => {
+              deleteIt();
+              toast.dismiss();
+            }}
+          >
+            Confirm
+          </button>
+          <button
+            className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
+            onClick={() => {
+              toast.dismiss();
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>,
+      {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -58,8 +95,8 @@ const NoteCard = ({ note, groupId }) => {
         draggable: true,
         progress: undefined,
         theme: "dark",
-      });
-    }
+      }
+    );
   };
 
   useEffect(() => {

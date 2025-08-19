@@ -87,19 +87,33 @@ const NoteSection = ({ groupId }) => {
   }, []);
 
   const deleteGroup = async () => {
-    try {
-      const responce = await JWTAxios.delete("/group/deletegroup", {
-        data: {
-          groupId: groupId,
-        },
-      });
+    const deleteIt = async () => {
+      try {
+        const responce = await JWTAxios.delete("/group/deletegroup", {
+          data: {
+            groupId: groupId,
+          },
+        });
 
-      if (responce.data.success) {
-        dispatch(deleteMyGroup(groupId));
+        if (responce.data.success) {
+          dispatch(deleteMyGroup(groupId));
 
-        navigate("/home/mygroups");
+          navigate("/home/mygroups");
 
-        toast.success("Group delete Successfull.", {
+          toast.success("Group delete Successfull.", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        }
+      } catch (error) {
+        console.log(error.message);
+        toast.error("Group delete fail.", {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
@@ -110,9 +124,32 @@ const NoteSection = ({ groupId }) => {
           theme: "dark",
         });
       }
-    } catch (error) {
-      console.log(error.message);
-      toast.error("Group delete fail.", {
+    };
+
+    toast.success(
+      <div className="flex flex-col gap-2">
+        <p>Are you sure you want to delete this group?</p>
+        <div className="flex gap-2">
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            onClick={() => {
+              deleteIt();
+              toast.dismiss();
+            }}
+          >
+            Confirm
+          </button>
+          <button
+            className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
+            onClick={() => {
+              toast.dismiss();
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>,
+      {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -121,8 +158,8 @@ const NoteSection = ({ groupId }) => {
         draggable: true,
         progress: undefined,
         theme: "dark",
-      });
-    }
+      }
+    );
   };
 
   const shareGroup = () => {
