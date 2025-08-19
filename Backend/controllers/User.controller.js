@@ -366,3 +366,233 @@ export const addToTheGroup = async (req, res) => {
     });
   }
 };
+
+// Add these functions to your User.controller.js file
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId).select("-password").lean();
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // You might want to add additional stats here
+    // For now, returning basic user info
+    const userProfile = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      age: user.age,
+      grade: user.grade,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
+    res.status(200).json({
+      success: true,
+      user: userProfile,
+      message: "Profile retrieved successfully",
+    });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching user profile",
+      error: error.message,
+    });
+  }
+};
+
+export const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { username, email, age, grade } = req.body;
+
+    // Validation
+    if (!username || !email || !age || !grade) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    // Check if email is already taken by another user
+    const existingUser = await User.findOne({
+      email,
+      _id: { $ne: userId },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already taken by another user",
+      });
+    }
+
+    // Validate age
+    if (age < 1 || age > 120) {
+      return res.status(400).json({
+        success: false,
+        message: "Age must be between 1 and 120",
+      });
+    }
+
+    // Validate grade
+    const validGrades = [
+      "primaryschool",
+      "highschool",
+      "undergraduate",
+      "postgraduate",
+      "other",
+    ];
+
+    if (!validGrades.includes(grade)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid grade value",
+      });
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          username: username.trim(),
+          email: email.trim().toLowerCase(),
+          age: parseInt(age),
+          grade,
+        },
+        {
+          session,
+          new: true,
+          runValidators: true,
+        }
+      ).select("-password");
+
+      await session.commitTransaction();
+
+      res.status(200).json({
+        success: true,
+        user: {
+          id: updatedUser._id,
+          username: updatedUser.username,
+          email: updatedUser.email,
+          age: updatedUser.age,
+          grade: updatedUser.grade,
+          createdAt: updatedUser.createdAt,
+          updatedAt: updatedUser.updatedAt,
+        },
+        message: "Profile updated successfully",
+      });
+    } catch (transactionError) {
+      await session.abortTransaction();
+      throw transactionError;
+    } finally {
+      session.endSession();
+    }
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+
+    // Handle validation errors
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        error: error.message,
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Error updating user profile",
+      error: error.message,
+    });
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password and new password are required",
+      });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 8 characters long",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // You'll need to import bcrypt for password comparison
+    // import bcrypt from 'bcryptjs';
+    const bcrypt = require("bcryptjs"); // or import bcrypt from 'bcryptjs';
+
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      await User.findByIdAndUpdate(
+        userId,
+        { password: hashedNewPassword },
+        { session }
+      );
+
+      await session.commitTransaction();
+
+      res.status(200).json({
+        success: true,
+        message: "Password changed successfully",
+      });
+    } catch (transactionError) {
+      await session.abortTransaction();
+      throw transactionError;
+    } finally {
+      session.endSession();
+    }
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error changing password",
+      error: error.message,
+    });
+  }
+};
