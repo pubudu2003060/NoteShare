@@ -267,7 +267,7 @@ const SidebarSection = ({ setEditGroup, editGroup, SetAddMembers }) => {
               Team Members
             </h3>
 
-            {accesslevel === "admin" ? (
+            {accesslevel === "admin" || accesslevel === "editor" ? (
               <button
                 onClick={() => SetAddMembers()}
                 disabled={loading}
@@ -299,7 +299,7 @@ const SidebarSection = ({ setEditGroup, editGroup, SetAddMembers }) => {
             </div>
 
             <div className="flex gap-1">
-              {accesslevel === "admin" ? (
+              {accesslevel === "admin" || accesslevel === "editor" ? (
                 <button
                   onClick={() => setMemberFilter("all")}
                   disabled={loading}
@@ -315,7 +315,7 @@ const SidebarSection = ({ setEditGroup, editGroup, SetAddMembers }) => {
                 <></>
               )}
 
-              {accesslevel === "admin" ? (
+              {accesslevel === "admin" || accesslevel === "editor" ? (
                 <button
                   onClick={() => setMemberFilter("editors")}
                   disabled={loading}
@@ -346,7 +346,7 @@ const SidebarSection = ({ setEditGroup, editGroup, SetAddMembers }) => {
           </div>
 
           <div className="max-h-80 md:max-h-55 overflow-y-auto  color-scrollbar">
-            {accesslevel === "admin" ? (
+            {accesslevel === "admin" || accesslevel === "editor" ? (
               /* Display filtered members */ memberFilter === "all" && (
                 <div className="space-y-4   overflow-y-auto">
                   {/* Editors Section */}
@@ -454,7 +454,7 @@ const SidebarSection = ({ setEditGroup, editGroup, SetAddMembers }) => {
               <></>
             )}
 
-            {accesslevel === "admin" /* Show only editors */ ? (
+            {accesslevel === "admin" || accesslevel === "editor" ? (
               memberFilter === "editors" && (
                 <div className="space-y-2">
                   {getFilteredMembers("editors").map((editor, i) => (
@@ -517,7 +517,7 @@ const SidebarSection = ({ setEditGroup, editGroup, SetAddMembers }) => {
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      {accesslevel === "admin" ? (
+                      {accesslevel === "admin" || accesslevel === "editor" ? (
                         <>
                           <button
                             onClick={() => upgradeUser(member._id)}

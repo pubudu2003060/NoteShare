@@ -1,7 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import NoPage from "./screens/NoPage";
-import PublicGroups from "./screens/PublicGroups";
-import PrivateGroups from "./screens/PrivateGroups";
 import Stared from "./screens/Stared";
 import Profile from "./screens/Profile";
 import About from "./screens/About";
@@ -18,6 +16,7 @@ import { useEffect, useState } from "react";
 import { JWTAxios } from "./api/Axios";
 import { addUserData, logedIn } from "./state/user/UserSlice";
 import EditorGroups from "./screens/editorGroups/EditorGroups";
+import UserGroups from "./screens/userGroups/UserGroups";
 
 const App = () => {
   const isLogedIn = useSelector((state) => state.user.isLogedIn);
@@ -78,7 +77,7 @@ const App = () => {
                 <Route index element={<Home />} />
                 <Route path="mygroups" element={<MyGroups />} />
                 <Route path="editorgroups" element={<EditorGroups />} />
-                <Route path="privategroups" element={<PrivateGroups />} />
+                <Route path="usergroups" element={<UserGroups />} />
                 <Route path="stared" element={<Stared />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="about" element={<About />} />

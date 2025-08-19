@@ -5,6 +5,7 @@ import {
   getEditorGroups,
   getGroupfromId,
   getMyGroups,
+  getUserGroups,
   searchGroups,
   updateGroup,
 } from "../controllers/Group.controller.js";
@@ -19,6 +20,8 @@ groupRouter.get("/searchgroups", verifyAccessToken, searchGroups);
 groupRouter.post("/getmygroups", verifyAccessToken, getMyGroups);
 
 groupRouter.post("/geteditorgroups", verifyAccessToken, getEditorGroups);
+
+groupRouter.post("/getusergroups", verifyAccessToken, getUserGroups);
 
 groupRouter.get("/getgroupfromid", verifyAccessToken, getGroupfromId);
 

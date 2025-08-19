@@ -323,7 +323,8 @@ const NoteSection = ({ groupId }) => {
               </div>
             )}
           </div>
-          {accesslevel === "admin" ? (
+
+          {accesslevel != "none" ? (
             <div className="absolute bottom-6 right-6 z-20">
               <div className="relative">
                 {/* Note Options Dropdown */}

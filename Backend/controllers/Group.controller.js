@@ -113,6 +113,38 @@ export const getEditorGroups = async (req, res) => {
   }
 };
 
+export const getUserGroups = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const groups = await Group.find({ members: userId }).sort({
+      createdAt: -1,
+    });
+
+    const formattedGroups = groups.map((group) => ({
+      id: group._id,
+      name: group.name,
+      photo: group.photo,
+      description: group.description,
+      tags: group.tags,
+      isPrivate: group.isPrivate,
+      members: group.members?.length + group.editors?.length || 0,
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "Groups retrieved successfully",
+      data: formattedGroups,
+    });
+  } catch (error) {
+    console.error("Error fetching user groups:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch groups",
+    });
+  }
+};
+
 export const createGroup = async (req, res) => {
   try {
     const { name, description, tags, isPrivate } = req.body;
@@ -196,12 +228,14 @@ export const getGroupfromId = async (req, res) => {
       });
     }
 
+    console.log(group);
+
     if (group.admin._id.equals(userId)) {
       accesslevel = "admin";
-    } else if (group.members.includes(userId)) {
-      accesslevel = "member";
-    } else if (group.editors.includes(userId)) {
+    } else if (group.editors.some((editor) => editor._id.equals(userId))) {
       accesslevel = "editor";
+    } else if (group.members.some((member) => member._id.equals(userId))) {
+      accesslevel = "member";
     }
 
     res.status(200).json({
