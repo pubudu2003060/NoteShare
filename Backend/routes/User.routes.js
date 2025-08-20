@@ -44,12 +44,10 @@ userRouter.post(
 
 userRouter.post("/addtothegroup", verifyAccessToken, addToTheGroup);
 
-userRouter.get("/profile", verifyAccessToken, getUserProfile);
+userRouter.get("/getprofiledata", verifyAccessToken, getUserProfile);
 
-// Update user profile
-userRouter.put("/profile", verifyAccessToken, updateUserProfile);
+userRouter.put("/updateprofile", verifyAccessToken, updateUserProfile);
 
-// Change password
-userRouter.put("/change-password", verifyAccessToken, changePassword);
+userRouter.put("/changepassword", verifyAccessToken, changePassword);
 
 export default userRouter;

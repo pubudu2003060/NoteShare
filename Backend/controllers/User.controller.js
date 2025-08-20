@@ -1,6 +1,8 @@
 import User from "../models/User.model.js";
 import Group from "../models/Group.model.js";
 import mongoose from "mongoose";
+import Note from "../models/Note.model.js";
+import bcrypt from "bcryptjs";
 
 export const searchUsers = async (req, res) => {
   try {
@@ -367,13 +369,21 @@ export const addToTheGroup = async (req, res) => {
   }
 };
 
-// Add these functions to your User.controller.js file
-
 export const getUserProfile = async (req, res) => {
   try {
     const userId = req.user._id;
 
     const user = await User.findById(userId).select("-password").lean();
+
+    const usersGroups = await Group.find({
+      $or: [{ members: user._id }, { editors: user._id }, { admin: user._id }],
+    });
+
+    const groupCount = usersGroups.length;
+
+    const usersNotes = await Note.find({ createdBy: user._id });
+
+    const noteCount = usersNotes.length;
 
     if (!user) {
       return res.status(404).json({
@@ -382,16 +392,14 @@ export const getUserProfile = async (req, res) => {
       });
     }
 
-    // You might want to add additional stats here
-    // For now, returning basic user info
     const userProfile = {
-      id: user._id,
       username: user.username,
       email: user.email,
       age: user.age,
       grade: user.grade,
       createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      groupCount,
+      noteCount,
     };
 
     res.status(200).json({
@@ -404,7 +412,6 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error fetching user profile",
-      error: error.message,
     });
   }
 };
@@ -412,30 +419,8 @@ export const getUserProfile = async (req, res) => {
 export const updateUserProfile = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { username, email, age, grade } = req.body;
+    const { username, age, grade } = req.body;
 
-    // Validation
-    if (!username || !email || !age || !grade) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
-
-    // Check if email is already taken by another user
-    const existingUser = await User.findOne({
-      email,
-      _id: { $ne: userId },
-    });
-
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is already taken by another user",
-      });
-    }
-
-    // Validate age
     if (age < 1 || age > 120) {
       return res.status(400).json({
         success: false,
@@ -443,7 +428,6 @@ export const updateUserProfile = async (req, res) => {
       });
     }
 
-    // Validate grade
     const validGrades = [
       "primaryschool",
       "highschool",
@@ -467,7 +451,6 @@ export const updateUserProfile = async (req, res) => {
         userId,
         {
           username: username.trim(),
-          email: email.trim().toLowerCase(),
           age: parseInt(age),
           grade,
         },
@@ -483,13 +466,10 @@ export const updateUserProfile = async (req, res) => {
       res.status(200).json({
         success: true,
         user: {
-          id: updatedUser._id,
           username: updatedUser.username,
-          email: updatedUser.email,
+
           age: updatedUser.age,
           grade: updatedUser.grade,
-          createdAt: updatedUser.createdAt,
-          updatedAt: updatedUser.updatedAt,
         },
         message: "Profile updated successfully",
       });
@@ -502,7 +482,6 @@ export const updateUserProfile = async (req, res) => {
   } catch (error) {
     console.error("Error updating user profile:", error);
 
-    // Handle validation errors
     if (error.name === "ValidationError") {
       return res.status(400).json({
         success: false,
@@ -531,10 +510,10 @@ export const changePassword = async (req, res) => {
       });
     }
 
-    if (newPassword.length < 8) {
+    if (currentPassword === newPassword) {
       return res.status(400).json({
         success: false,
-        message: "New password must be at least 8 characters long",
+        message: "Current password and newpassword cant be the same one",
       });
     }
 
@@ -545,10 +524,6 @@ export const changePassword = async (req, res) => {
         message: "User not found",
       });
     }
-
-    // You'll need to import bcrypt for password comparison
-    // import bcrypt from 'bcryptjs';
-    const bcrypt = require("bcryptjs"); // or import bcrypt from 'bcryptjs';
 
     const isCurrentPasswordValid = await bcrypt.compare(
       currentPassword,
@@ -561,8 +536,7 @@ export const changePassword = async (req, res) => {
       });
     }
 
-    // Hash new password
-    const saltRounds = 12;
+    const saltRounds = 10;
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
     const session = await mongoose.startSession();

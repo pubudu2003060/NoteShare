@@ -21,35 +21,20 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { addUserData, logedOut } from "../../state/user/UserSlice";
-
-// Get user profile
-export const getUserProfile = async () => {
-  const response = await JWTAxios.get("/user/profile");
-  return response.data;
-};
-
-// Update user profile
-export const updateUserProfile = async (profileData) => {
-  const response = await JWTAxios.put("/user/profile", profileData);
-  return response.data;
-};
-
-// Change password
-export const changePassword = async (passwordData) => {
-  const response = await JWTAxios.put("/user/change-password", passwordData);
-  return response.data;
-};
+import {
+  addUserData,
+  logedOut,
+  updateUserData,
+} from "../../state/user/UserSlice";
+import { JWTAxios } from "../../api/Axios";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user.data);
 
-  // UI States
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -58,15 +43,12 @@ const Profile = () => {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  // Profile form state
   const [profileData, setProfileData] = useState({
     username: "",
-    email: "",
     age: "",
     grade: "",
   });
 
-  // Password form state
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -81,19 +63,6 @@ const Profile = () => {
     { value: "other", label: "Other" },
   ];
 
-  // Clear error/success messages after 5 seconds
-  useEffect(() => {
-    let timer;
-    if (error || success) {
-      timer = setTimeout(() => {
-        setError("");
-        setSuccess("");
-      }, 5000);
-    }
-    return () => clearTimeout(timer);
-  }, [error, success]);
-
-  // Fetch profile on mount
   useEffect(() => {
     fetchUserProfile();
   }, []);
@@ -101,36 +70,55 @@ const Profile = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      const response = await getUserProfile();
-      if (response.success && response.user) {
+      const data = await JWTAxios.get("/user/getprofiledata");
+      const response = data.data;
+
+      if (response.success) {
         dispatch(addUserData(response.user));
+
         setProfileData({
           username: response.user.username || "",
-          email: response.user.email || "",
           age: response.user.age || "",
           grade: response.user.grade || "",
         });
       } else {
-        setError("Invalid profile data received");
+        toast.error("Profile data geting error", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
       }
     } catch (err) {
-      setError(err.message || "Failed to load profile");
+      toast.error("Profile data geting error", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Stats
   const userStats = user
     ? [
         {
-          number: user.totalGroups || 0,
+          number: user.groupCount || 0,
           label: "Groups Joined",
           icon: <User className="h-6 w-6" />,
           color: "text-blue-600",
         },
         {
-          number: user.notesShared || 0,
+          number: user.noteCount || 0,
           label: "Notes Shared",
           icon: <Activity className="h-6 w-6" />,
           color: "text-green-600",
@@ -142,7 +130,7 @@ const Profile = () => {
           color: "text-purple-600",
         },
         {
-          number: "98%",
+          number: engagement(user.groupCount, user.noteCount),
           label: "Engagement",
           icon: <Award className="h-6 w-6" />,
           color: "text-yellow-600",
@@ -158,7 +146,13 @@ const Profile = () => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 
-  // Form handlers
+  function engagement(groupCount, noteCount) {
+    const activeDays = calculateDaysSinceJoined(user.createdAt);
+    const totalWorks = groupCount + noteCount;
+    const engagement = (totalWorks / activeDays) * 100;
+    return engagement.toFixed(2);
+  }
+
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setProfileData((prev) => ({
@@ -177,8 +171,6 @@ const Profile = () => {
 
   const validateProfileData = () => {
     if (!profileData.username.trim()) return "Username is required";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileData.email))
-      return "Invalid email format";
     if (
       profileData.age &&
       (isNaN(profileData.age) || profileData.age < 1 || profileData.age > 120)
@@ -193,23 +185,60 @@ const Profile = () => {
     e.preventDefault();
     const validationError = validateProfileData();
     if (validationError) {
-      setError(validationError);
+      toast.error(validationError, {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
       return;
     }
     setUpdateLoading(true);
-    setError("");
-    setSuccess("");
+
     try {
-      const response = await updateUserProfile(profileData);
+      const data = await JWTAxios.put("/user/updateprofile", profileData);
+      const response = data.data;
       if (response.success && response.user) {
-        dispatch(addUserData(response.user));
+        dispatch(updateUserData(response.user));
         setIsEditing(false);
-        setSuccess("Profile updated successfully!");
+        toast.success("Profile update Success", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
       } else {
-        setError("Failed to update profile");
+        toast.error("Profile update error", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
       }
     } catch (err) {
-      setError(err.message || "Failed to update profile");
+      console.log(err);
+      toast.error("Profile update error", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     } finally {
       setUpdateLoading(false);
     }
@@ -217,25 +246,43 @@ const Profile = () => {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setError("New passwords don't match");
+      toast.error("Newpassword and Confirmpassword must be same", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
       return;
     }
 
-    if (passwordData.newPassword.length < 8) {
-      setError("Password must be at least 8 characters long");
+    if (passwordData.newPassword === passwordData.currentPassword) {
+      toast.error("Newpassword and CurrentPassword cant be same", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
       return;
     }
 
     setPasswordLoading(true);
     try {
-      const response = await changePassword({
+      const data = await JWTAxios.put("/user/changepassword", {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
+
+      const response = data.data;
       if (response.success) {
         setIsChangingPassword(false);
         setPasswordData({
@@ -243,12 +290,39 @@ const Profile = () => {
           newPassword: "",
           confirmPassword: "",
         });
-        setSuccess("Password changed successfully!");
+        toast.success("Password update success", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
       } else {
-        setError("Failed to change password");
+        toast.error("Password update fail", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
       }
     } catch (err) {
-      setError(err.message || "Failed to change password");
+      toast.error("Password update fail", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     } finally {
       setPasswordLoading(false);
     }
@@ -292,24 +366,6 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      {/* Error/Success Messages */}
-      {(error || success) && (
-        <div className="fixed top-4 right-4 z-50 max-w-sm">
-          {error && (
-            <div className="bg-red-500 text-white p-4 rounded-lg flex items-center gap-2">
-              <AlertCircle size={20} />
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="bg-green-500 text-white p-4 rounded-lg flex items-center gap-2">
-              <Check size={20} />
-              {success}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 text-white py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -416,26 +472,6 @@ const Profile = () => {
                     />
                   </div>
 
-                  {/* Email */}
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
-                    >
-                      Email Address
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      name="email"
-                      value={profileData.email}
-                      onChange={handleProfileChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-                      aria-required="true"
-                    />
-                  </div>
-
                   {/* Age */}
                   <div>
                     <label
@@ -505,7 +541,7 @@ const Profile = () => {
                       setIsEditing(false);
                       setProfileData({
                         username: user.username || "",
-                        email: user.email || "",
+
                         age: user.age || "",
                         grade: user.grade || "",
                       });
