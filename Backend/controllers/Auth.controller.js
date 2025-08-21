@@ -36,18 +36,20 @@ export const signUpUser = async (req, res) => {
       }
     );
 
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     console.log("User created:", newUser);
     res.status(201).json({
       success: true,
       accessToken,
-      refreshToken,
       message: "User SignUp Successfully",
       user: {
         id: newUser._id,
-        username: newUser.username,
-        email: newUser.email,
-        age: newUser.age,
-        grade: newUser.grade,
       },
     });
   } catch (error) {
@@ -86,17 +88,20 @@ export const signInUser = async (req, res) => {
       }
     );
 
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.status(201).json({
       success: true,
       user: {
         id: user._id,
-        username: user.username,
-        email: user.email,
-        age: user.age,
-        grade: user.grade,
       },
       accessToken,
-      refreshToken,
+
       message: "User SignIn Successfully",
     });
   } catch (error) {
@@ -106,50 +111,17 @@ export const signInUser = async (req, res) => {
 };
 
 export const refreshAccessToken = (req, res) => {
-  const { refreshToken } = req.body;
-
-  if (!refreshToken) {
-    return res.status(401).json({ message: "Refresh token missing" });
-  }
+  const userId = req.user._id;
 
   try {
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-    const newAccessToken = jwt.sign(
-      { id: decoded.id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
-
+    const newAccessToken = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    console.log(newAccessToken);
     res.status(200).json({ accessToken: newAccessToken });
   } catch (error) {
     return res
       .status(403)
       .json({ message: "Invalid or expired refresh token" });
-  }
-};
-
-export const test = (req, res) => {
-  try {
-    const user = req.user;
-    const userId = user._id;
-    const id = req.params.id;
-    if (userId == id) {
-      res.status(400).json({ success: fail, message: "try fail" });
-    }
-    const sendUser = {
-      id: userId,
-      username: user.username,
-      email: user.email,
-      age: user.age,
-      grade: user.grade,
-    };
-    res
-      .status(200)
-      .json({ success: true, message: "try pass", user: sendUser });
-  } catch (error) {
-    console.log("test error " + error.message);
-    res.status(400).json({ success: fail, message: "try fail" });
   }
 };

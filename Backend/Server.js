@@ -7,6 +7,7 @@ import noteRouter from "./routes/Note.routes.js";
 import groupRouter from "./routes/Group.routes.js";
 import auth from "./routes/Auth.routes.js";
 import other from "./routes/Other.routes.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -20,6 +21,8 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser());
 
 app.use("/api/user", userRouter);
 

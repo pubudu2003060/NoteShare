@@ -23,19 +23,17 @@ export const verifyAccessToken = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error("Token verification failed:", error);
-    return res.status(403).json({ message: "Invalid token" });
+    console.error("access Token verification failed:", error);
+    return res.status(401).json({ message: "Invalid token" });
   }
 };
 
 export const verifyRefreshToken = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const token = req.cookies.refreshToken;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-
-  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
@@ -50,7 +48,7 @@ export const verifyRefreshToken = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error("Token verification failed:", error);
+    console.error("refresh Token verification failed:", error);
     return res.status(403).json({ message: "Invalid token" });
   }
 };

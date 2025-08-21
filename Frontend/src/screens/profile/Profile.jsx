@@ -18,6 +18,7 @@ import {
   Award,
   Clock,
   AlertCircle,
+  Delete,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";

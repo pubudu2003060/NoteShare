@@ -6,6 +6,7 @@ export const freeAxios = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 export const JWTAxios = axios.create({
@@ -14,6 +15,7 @@ export const JWTAxios = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 export const longJWTAxios = axios.create({
@@ -22,13 +24,14 @@ export const longJWTAxios = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 JWTAxios.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (!accessToken || !refreshToken) {
+
+    if (!accessToken) {
       window.location.href = "/signin";
     }
 
@@ -43,8 +46,8 @@ JWTAxios.interceptors.request.use(
 longJWTAxios.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (!accessToken || !refreshToken) {
+
+    if (!accessToken) {
       window.location.href = "/signin";
     }
 
@@ -68,20 +71,7 @@ JWTAxios.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (!refreshToken) {
-          throw new Error("No refresh token found");
-        }
-
-        const res = await freeAxios.post(
-          "/auth/refreshaccesstoken",
-          { refreshToken },
-          {
-            headers: {
-              Authorization: `Bearer ${refreshToken}`,
-            },
-          }
-        );
+        const res = await freeAxios.post("/auth/refreshaccesstoken");
 
         const newAccessToken = res.data.accessToken;
 
@@ -93,8 +83,7 @@ JWTAxios.interceptors.response.use(
         console.error("Token refresh failed:", refreshError);
 
         localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        window.location.href = "/signin";
+        // window.location.href = "/signin";
       }
     }
 
@@ -114,20 +103,7 @@ longJWTAxios.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (!refreshToken) {
-          throw new Error("No refresh token found");
-        }
-
-        const res = await freeAxios.post(
-          "/auth/refreshaccesstoken",
-          { refreshToken },
-          {
-            headers: {
-              Authorization: `Bearer ${refreshToken}`,
-            },
-          }
-        );
+        const res = await freeAxios.post("/auth/refreshaccesstoken");
 
         const newAccessToken = res.data.accessToken;
 

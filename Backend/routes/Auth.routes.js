@@ -3,7 +3,6 @@ import {
   refreshAccessToken,
   signInUser,
   signUpUser,
-  test,
 } from "../controllers/Auth.controller.js";
 import {
   verifyAccessToken,
@@ -17,7 +16,5 @@ auth.post("/signup", signUpUser);
 auth.post("/signin", signInUser);
 
 auth.post("/refreshaccesstoken", verifyRefreshToken, refreshAccessToken);
-
-auth.get("/test", verifyAccessToken, test);
 
 export default auth;

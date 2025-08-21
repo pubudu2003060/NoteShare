@@ -25,24 +25,13 @@ const App = () => {
   useEffect(() => {
     const test = async () => {
       const accessToken = localStorage.getItem("accessToken");
-      const refreshToken = localStorage.getItem("refreshToken");
       const userId = localStorage.getItem("userId");
-      if (!userId || !accessToken || !refreshToken || isLogedIn) {
+      if (!userId || !accessToken || isLogedIn) {
         setLoading(false);
         return;
-      }
-      try {
-        const responce = await JWTAxios.get("/auth/test", { userId });
-        if (responce.data.success) {
-          dispatch(addUserData(responce.data.user));
-          dispatch(logedIn());
-        } else {
-          console.log(responce.data.message);
-        }
-      } catch (error) {
-        console.log(error.message);
-      } finally {
+      } else {
         setLoading(false);
+        dispatch(logedIn());
       }
     };
 
