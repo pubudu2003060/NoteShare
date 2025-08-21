@@ -1,5 +1,9 @@
 import express from "express";
 import {
+  googleSignin,
+  googleSigninCallBack,
+  handleGoogleFailure,
+  handleGoogleLogin,
   refreshAccessToken,
   signInUser,
   signUpUser,
@@ -16,5 +20,11 @@ auth.post("/signup", signUpUser);
 auth.post("/signin", signInUser);
 
 auth.post("/refreshaccesstoken", verifyRefreshToken, refreshAccessToken);
+
+auth.get("/googlesignin", googleSignin);
+
+auth.get("/googlesignin/callback", googleSigninCallBack, handleGoogleLogin);
+
+auth.get("/googlesignin/failure", handleGoogleFailure);
 
 export default auth;

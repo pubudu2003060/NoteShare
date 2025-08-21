@@ -8,6 +8,7 @@ import groupRouter from "./routes/Group.routes.js";
 import auth from "./routes/Auth.routes.js";
 import other from "./routes/Other.routes.js";
 import cookieParser from "cookie-parser";
+import session from "express-session";
 
 const app = express();
 
@@ -21,6 +22,18 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  session({
+    secret: "throwaway-passport-bridge",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: "false",
+      sameSite: "lax",
+    },
+  })
+);
 
 app.use(cookieParser());
 

@@ -5,7 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { freeAxios } from "../../api/Axios";
 import { useDispatch } from "react-redux";
-import { addUserData, logedIn } from "../../state/user/UserSlice";
+import { logedIn } from "../../state/user/UserSlice";
+import googleimage from "../../assets/logo/google logo.png";
 
 const SignUp = () => {
   const dispatch = useDispatch();
@@ -105,6 +106,10 @@ const SignUp = () => {
           theme: "dark",
         });
       });
+  };
+
+  const googleSignIn = () => {
+    window.location.href = "http://localhost:5000/api/auth/googlesignin";
   };
 
   return (
@@ -324,6 +329,19 @@ const SignUp = () => {
                   Sign In
                 </Link>
               </p>
+            </div>
+
+            <div className="mt-5 flex items-center justify-center gap-2 p-2">
+              <p className="text-slate-700 dark:text-slate-300">
+                Sign Up with Google
+              </p>
+              <button onClick={googleSignIn}>
+                <img
+                  src={googleimage}
+                  alt="Google Sign In"
+                  className="w-6 h-6"
+                />
+              </button>
             </div>
           </div>
         </div>

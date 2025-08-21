@@ -1,6 +1,7 @@
 import User from "../models/User.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import passport from "../config/passport.js";
 
 export const signUpUser = async (req, res) => {
   try {
@@ -124,4 +125,52 @@ export const refreshAccessToken = (req, res) => {
       .status(403)
       .json({ message: "Invalid or expired refresh token" });
   }
+};
+
+export const googleSignin = passport.authenticate("google", {
+  scope: ["profile", "email"],
+});
+
+export const googleSigninCallBack = passport.authenticate("google", {
+  failureRedirect: "/api/auth/googlesignin/failure",
+});
+
+export const handleGoogleLogin = async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      res.redirect(`http://localhost:5173/signin?status=fail`);
+    }
+
+    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_REFRESH_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.redirect(
+      `http://localhost:5173/signin?status=success&&accessToken=${accessToken}`
+    );
+  } catch (error) {
+    console.log("Google login error: " + error.message);
+    res.redirect(`http://localhost:5173/signin?status=fail`);
+  }
+};
+
+export const handleGoogleFailure = async (req, res) => {
+  res.redirect(`http://localhost:5173/signin?status=fail`);
 };
