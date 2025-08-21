@@ -13,7 +13,6 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
     },
     age: {
       type: Number,
@@ -30,24 +29,9 @@ const userSchema = new mongoose.Schema(
         "other",
       ],
     },
-    adminGroups: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Group",
-      },
-    ],
-    memberGroups: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Group",
-      },
-    ],
-    editorGroups: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Group",
-      },
-    ],
+    googleId: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

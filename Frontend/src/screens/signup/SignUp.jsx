@@ -1,11 +1,16 @@
 import React, { use, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import logo from "../assets/logo/logo.jpg";
+import logo from "../../assets/logo/logo.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { freeAxios } from "../api/Axios";
+import { freeAxios } from "../../api/Axios";
+import { useDispatch } from "react-redux";
+import { logedIn } from "../../state/user/UserSlice";
+import googleimage from "../../assets/logo/google logo.png";
 
 const SignUp = () => {
+  const dispatch = useDispatch();
+
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -44,13 +49,14 @@ const SignUp = () => {
     }
 
     await freeAxios
-      .post("/user/signup", formData)
+      .post("/auth/signup", formData)
       .then((responce) => {
         if (responce.data.success) {
-          const token = responce.data.token;
-          localStorage.setItem("token", token);
+          const accessToken = responce.data.accessToken;
+          localStorage.setItem("accessToken", accessToken);
           const user = responce.data.user;
-          localStorage.setItem("user", JSON.stringify(user));
+          localStorage.setItem("userId", JSON.stringify(user.id));
+          dispatch(logedIn());
 
           toast.success(responce.data.message, {
             position: "top-center",
@@ -100,6 +106,10 @@ const SignUp = () => {
           theme: "dark",
         });
       });
+  };
+
+  const googleSignIn = () => {
+    window.location.href = "http://localhost:5000/api/auth/googlesignin";
   };
 
   return (
@@ -319,6 +329,19 @@ const SignUp = () => {
                   Sign In
                 </Link>
               </p>
+            </div>
+
+            <div className="mt-5 flex items-center justify-center gap-2 p-2">
+              <p className="text-slate-700 dark:text-slate-300">
+                Sign Up with Google
+              </p>
+              <button onClick={googleSignIn}>
+                <img
+                  src={googleimage}
+                  alt="Google Sign In"
+                  className="w-6 h-6"
+                />
+              </button>
             </div>
           </div>
         </div>

@@ -10,13 +10,16 @@ const groupSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    photoPublicId: {
+      type: String,
+      required: true,
+    },
     description: {
       type: String,
       required: true,
     },
     tags: {
       type: [String],
-      required: true,
     },
     isPrivate: {
       type: Boolean,

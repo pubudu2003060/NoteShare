@@ -5,6 +5,10 @@ import userRouter from "./routes/User.routes.js";
 import cors from "cors";
 import noteRouter from "./routes/Note.routes.js";
 import groupRouter from "./routes/Group.routes.js";
+import auth from "./routes/Auth.routes.js";
+import other from "./routes/Other.routes.js";
+import cookieParser from "cookie-parser";
+import session from "express-session";
 
 const app = express();
 
@@ -16,14 +20,32 @@ app.use(
     credentials: true,
   })
 );
-
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  session({
+    secret: "throwaway-passport-bridge",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: "false",
+      sameSite: "lax",
+    },
+  })
+);
+
+app.use(cookieParser());
 
 app.use("/api/user", userRouter);
 
 app.use("/api/note", noteRouter);
 
 app.use("/api/group", groupRouter);
+
+app.use("/api/auth", auth);
+
+app.use("/api/other", other);
 
 const PORT = process.env.PORT || 3000;
 

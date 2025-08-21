@@ -7,23 +7,21 @@ import Card from "../../components/card/Card";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchKeyword, setSearchKeyword] = useState(""); // New state for actual search
   const [showPublic, setShowPublic] = useState(true);
   const [showPrivate, setShowPrivate] = useState(true);
   const [filteredData, setFilteredData] = useState([]);
   const [allGroups, setAllGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch data from backend based on searchKeyword
   const fetchGroups = async () => {
     setIsLoading(true);
     try {
       const response = await JWTAxios.get(
-        `/group/searchgroups?keyword=${searchKeyword}`
+        `/group/searchgroups?keyword=${searchTerm}`
       );
 
       if (response.data.success) {
-        setAllGroups(response.data.groups); // raw data from backend
+        setAllGroups(response.data.groups);
       } else {
         console.log("Could not fetch group data");
       }
@@ -34,12 +32,15 @@ const Home = () => {
     }
   };
 
-  // This effect runs whenever searchKeyword changes (actual search trigger)
   useEffect(() => {
-    fetchGroups();
-  }, [searchKeyword]);
+    const timer = setTimeout(() => {
+      fetchGroups();
+    }, 300);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchTerm]);
 
-  // Filter by public/private (frontend only)
   useEffect(() => {
     const filtered = allGroups.filter((item) => {
       const matchesType =
@@ -50,21 +51,8 @@ const Home = () => {
     setFilteredData(filtered);
   }, [showPublic, showPrivate, allGroups]);
 
-  // Handle search input change (just updates the input value)
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-  };
-
-  // Handle search execution
-  const handleSearch = () => {
-    setSearchKeyword(searchTerm);
-  };
-
-  // Handle Enter key press
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
   };
 
   const handlePublicChange = (e) => {
@@ -74,11 +62,6 @@ const Home = () => {
   const handlePrivateChange = (e) => {
     setShowPrivate(e.target.checked);
   };
-
-  // Load initial data on component mount
-  useEffect(() => {
-    setSearchKeyword(""); // This will trigger fetchGroups with empty string (random groups)
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 md:p-6">
@@ -117,12 +100,10 @@ const Home = () => {
               id="search"
               value={searchTerm}
               onChange={handleSearchChange}
-              onKeyPress={handleKeyPress}
               placeholder="Search groups..."
               className="w-full pl-12 pr-16 py-4 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-slate-400 transition-all duration-300 shadow-sm hover:shadow-md"
             />
             <button
-              onClick={handleSearch}
               disabled={isLoading}
               className="absolute inset-y-0 right-0 pr-3 flex items-center"
             >

@@ -1,9 +1,50 @@
 import express from "express";
-import { searchGroups } from "../controllers/Group.controller.js";
-import { verifyToken } from "../middleware/JwtVerify.js";
+import {
+  createGroup,
+  deleteGroup,
+  getEditorGroups,
+  getGroupfromId,
+  getMyGroups,
+  getUserGroups,
+  searchGroups,
+  updateGroup,
+} from "../controllers/Group.controller.js";
+import { verifyAccessToken } from "../middleware/JwtVerify.js";
+import upload from "../config/multer.js";
+import { GroupAdminAuth } from "../middleware/GroupAuth.js";
 
 const groupRouter = express.Router();
 
-groupRouter.get("/searchgroups", verifyToken, searchGroups);
+groupRouter.get("/searchgroups", verifyAccessToken, searchGroups);
+
+groupRouter.post("/getmygroups", verifyAccessToken, getMyGroups);
+
+groupRouter.post("/geteditorgroups", verifyAccessToken, getEditorGroups);
+
+groupRouter.post("/getusergroups", verifyAccessToken, getUserGroups);
+
+groupRouter.get("/getgroupfromid", verifyAccessToken, getGroupfromId);
+
+groupRouter.post(
+  "/creategroup",
+  verifyAccessToken,
+  upload.single("photo"),
+  createGroup
+);
+
+groupRouter.put(
+  "/updategroup",
+  verifyAccessToken,
+  upload.single("photo"),
+  GroupAdminAuth,
+  updateGroup
+);
+
+groupRouter.delete(
+  "/deletegroup",
+  verifyAccessToken,
+  GroupAdminAuth,
+  deleteGroup
+);
 
 export default groupRouter;

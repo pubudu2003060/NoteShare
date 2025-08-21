@@ -1,18 +1,18 @@
 import mongoose from "mongoose";
+import { type } from "os";
 
 const noteSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
     },
     description: {
       type: String,
-      required: true,
     },
     tags: {
       type: [String],
       required: true,
+      enum: ["note", "pastpapers", "examtip", "mindtip", "other"],
     },
     group: {
       type: mongoose.Schema.Types.ObjectId,
@@ -26,6 +26,10 @@ const noteSchema = mongoose.Schema(
           required: true,
         },
         url: {
+          type: String,
+          required: true,
+        },
+        publicId: {
           type: String,
           required: true,
         },

@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import logo from "../assets/logo/logo.jpg";
-import { Link, useNavigate } from "react-router-dom";
+import logo from "../../assets/logo/logo.jpg";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { freeAxios } from "../api/Axios";
+import { freeAxios } from "../../api/Axios";
+import { useDispatch } from "react-redux";
+import { logedIn } from "../../state/user/UserSlice";
+import googleimage from "../../assets/logo/google logo.png";
 
 const SignIn = () => {
+  const dispatch = useDispatch();
+
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -25,13 +30,14 @@ const SignIn = () => {
     e.preventDefault();
 
     await freeAxios
-      .post("/user/signin", formData)
+      .post("/auth/signin", formData)
       .then((responce) => {
         if (responce.data.success) {
-          const token = responce.data.token;
-          localStorage.setItem("token", token);
+          const accessToken = responce.data.accessToken;
+          localStorage.setItem("accessToken", accessToken);
           const user = responce.data.user;
-          localStorage.setItem("user", JSON.stringify(user));
+          localStorage.setItem("userId", JSON.stringify(user.id));
+          dispatch(logedIn());
 
           toast.success(responce.data.message, {
             position: "top-center",
@@ -77,6 +83,42 @@ const SignIn = () => {
         });
       });
   };
+
+  const googleSignIn = () => {
+    window.location.href = "http://localhost:5000/api/auth/googlesignin";
+  };
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paramValueStatus = searchParams.get("status");
+  const tokenValue = searchParams.get("accessToken");
+
+  useEffect(() => {
+    const googleSignin = () => {
+      if (!paramValueStatus) return;
+
+      if (paramValueStatus === "fail") {
+        toast.error("User signed in failed", {
+          position: "top-center",
+          autoClose: 5000,
+          theme: "dark",
+        });
+        navigate("/signin", { replace: true });
+      }
+
+      if (paramValueStatus === "success" && tokenValue) {
+        localStorage.setItem("accessToken", tokenValue);
+        toast.success("User signed in successfully", {
+          position: "top-center",
+          autoClose: 5000,
+          theme: "dark",
+        });
+        dispatch(logedIn());
+        navigate("/", { replace: true });
+      }
+    };
+
+    googleSignin();
+  }, [paramValueStatus, tokenValue]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex flex-col lg:flex-row">
@@ -177,6 +219,19 @@ const SignIn = () => {
                   Sign Up
                 </Link>
               </p>
+            </div>
+
+            <div className="mt-5 flex items-center justify-center gap-2 p-2">
+              <p className="text-slate-700 dark:text-slate-300">
+                Sign In with Google
+              </p>
+              <button onClick={googleSignIn}>
+                <img
+                  src={googleimage}
+                  alt="Google Sign In"
+                  className="w-6 h-6"
+                />
+              </button>
             </div>
           </div>
         </div>

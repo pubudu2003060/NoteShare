@@ -1,6 +1,16 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Users, Globe, Lock, Star, User, Info } from "lucide-react";
+import {
+  Menu,
+  X,
+  Users,
+  Globe,
+  Lock,
+  Star,
+  User,
+  Info,
+  Home,
+} from "lucide-react";
 import logo from "../../assets/logo/logo.jpg";
 
 const SideBar = () => {
@@ -58,57 +68,55 @@ const SideBar = () => {
             <ul className="space-y-2">
               <li>
                 <Link
-                  to="mygroups"
+                  to=""
                   className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-900/20 hover:text-white dark:hover:text-blue-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
                   onClick={() => setIsOpen(false)}
                 >
-                  <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  <span className="hidden sm:block md:block">My Groups</span>
+                  <Home className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <span className="hidden sm:block md:block">Home</span>
                   <span className="block sm:hidden md:hidden text-xs">
-                    Groups
+                    Home
                   </span>
                 </Link>
               </li>
               <li>
                 <Link
-                  to="publicgroups"
+                  to="mygroups"
+                  className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-900/20 hover:text-white dark:hover:text-blue-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Lock className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <span className="hidden sm:block md:block">My Groups</span>
+                  <span className="block sm:hidden md:hidden text-xs">
+                    My Groups
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="editorgroups"
                   className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-green-900/20 hover:text-white dark:hover:text-green-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
                   onClick={() => setIsOpen(false)}
                 >
                   <Globe className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   <span className="hidden sm:block md:block">
-                    Public Groups
+                    Editor Groups
                   </span>
                   <span className="block sm:hidden md:hidden text-xs">
-                    Public
+                    Editor Groups
                   </span>
                 </Link>
               </li>
               <li>
                 <Link
-                  to="privategroups"
+                  to="usergroups"
                   className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-purple-900/20 hover:text-white dark:hover:text-purple-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
                   onClick={() => setIsOpen(false)}
                 >
-                  <Lock className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  <span className="hidden sm:block md:block">
-                    Private Groups
-                  </span>
+                  <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <span className="hidden sm:block md:block">User Groups</span>
                   <span className="block sm:hidden md:hidden text-xs">
-                    Private
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="stared"
-                  className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-yellow-900/20 hover:text-white dark:hover:text-yellow-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Star className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  <span className="hidden sm:block md:block">Starred</span>
-                  <span className="block sm:hidden md:hidden text-xs">
-                    Star
+                    User Groups
                   </span>
                 </Link>
               </li>

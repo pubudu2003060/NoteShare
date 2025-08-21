@@ -5,14 +5,21 @@ const DarkModeToggle = () => {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    const html = document.documentElement;
-    setIsDark(html.classList.contains("dark"));
+    const stored = localStorage.getItem("dark");
+    if (stored === "true") {
+      setIsDark(true);
+      document.documentElement.classList.add("dark");
+    } else {
+      setIsDark(false);
+      document.documentElement.classList.remove("dark");
+    }
   }, []);
 
   const toggleDarkMode = () => {
     const html = document.documentElement;
     html.classList.toggle("dark");
     setIsDark(!isDark);
+    localStorage.setItem("dark", !isDark);
   };
 
   return (
