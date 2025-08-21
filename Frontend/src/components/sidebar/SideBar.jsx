@@ -10,6 +10,7 @@ import {
   User,
   Info,
   Home,
+  ChartArea,
 } from "lucide-react";
 import logo from "../../assets/logo/logo.jpg";
 
@@ -117,6 +118,19 @@ const SideBar = () => {
                   <span className="hidden sm:block md:block">User Groups</span>
                   <span className="block sm:hidden md:hidden text-xs">
                     User Groups
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="chat"
+                  className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-purple-900/20 hover:text-white dark:hover:text-purple-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <ChartArea className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <span className="hidden sm:block md:block">Chat</span>
+                  <span className="block sm:hidden md:hidden text-xs">
+                    Chat
                   </span>
                 </Link>
               </li>

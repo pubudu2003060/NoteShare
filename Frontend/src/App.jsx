@@ -1,5 +1,4 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import NoPage from "./screens/NoPage";
 import About from "./screens/about/About";
 import Layout from "./components/layout/Layout";
 import SignIn from "./screens/signin/SignIn";
@@ -16,6 +15,8 @@ import { addUserData, logedIn } from "./state/user/UserSlice";
 import EditorGroups from "./screens/editorGroups/EditorGroups";
 import UserGroups from "./screens/userGroups/UserGroups";
 import Profile from "./screens/profile/Profile";
+import NoPage from "./screens/nopages/NoPage";
+import Chat from "./screens/chat/Chat";
 
 const App = () => {
   const isLogedIn = useSelector((state) => state.user.isLogedIn);
@@ -69,6 +70,7 @@ const App = () => {
                 <Route path="profile" element={<Profile />} />
                 <Route path="about" element={<About />} />
                 <Route path="group" element={<Group />} />
+                <Route path="chat" element={<Chat />} />
               </Route>
             </>
           ) : (
