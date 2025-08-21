@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BookOpen,
   Users,
@@ -15,9 +15,27 @@ import {
   Zap,
   Award,
 } from "lucide-react";
+import { freeAxios } from "../../api/Axios";
 
 const About = () => {
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [aboutData, setAboutData] = useState({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const responce = await freeAxios.get("/other/about/getdata");
+        if (responce.data.success) {
+          setAboutData(responce.data.data);
+          console.log(responce.data.data);
+        }
+      } catch (error) {
+        console.log("error in fetch about data", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const features = [
     {
@@ -48,17 +66,17 @@ const About = () => {
 
   const stats = [
     {
-      number: "10K+",
+      number: aboutData.userCount || 0,
       label: "Active Users",
       icon: <Users className="h-6 w-6" />,
     },
     {
-      number: "50K+",
+      number: aboutData.noteCount || 0,
       label: "Notes Shared",
       icon: <BookOpen className="h-6 w-6" />,
     },
     {
-      number: "500+",
+      number: aboutData.groupCount || 0,
       label: "Study Groups",
       icon: <Share2 className="h-6 w-6" />,
     },
@@ -302,10 +320,6 @@ const About = () => {
             <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3 flex items-center gap-3">
               <MessageCircle className="h-5 w-5" />
               <span>Live Chat Support</span>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3 flex items-center gap-3">
-              <Globe className="h-5 w-5" />
-              <span>Community Forum</span>
             </div>
           </div>
         </div>

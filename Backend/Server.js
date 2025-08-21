@@ -6,6 +6,7 @@ import cors from "cors";
 import noteRouter from "./routes/Note.routes.js";
 import groupRouter from "./routes/Group.routes.js";
 import auth from "./routes/Auth.routes.js";
+import other from "./routes/Other.routes.js";
 
 const app = express();
 
@@ -27,6 +28,8 @@ app.use("/api/note", noteRouter);
 app.use("/api/group", groupRouter);
 
 app.use("/api/auth", auth);
+
+app.use("/api/other", other);
 
 const PORT = process.env.PORT || 3000;
 
