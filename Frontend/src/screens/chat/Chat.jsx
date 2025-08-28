@@ -1,27 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Send,
-  Paperclip,
-  Smile,
-  MoreVertical,
-  Phone,
-  Video,
-  Info,
-  Search,
-  X,
-  Users,
-  Settings,
-  Image,
-  File,
-  Mic,
-  MicOff,
-  Camera,
-  UserPlus,
-  VolumeX,
-  Volume2,
-} from "lucide-react";
+import { Send, Smile, Search, Info, ArrowLeft, Users, X } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
 
 const Chat = () => {
+  const { groupId } = useParams();
+  const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
     {
@@ -30,7 +13,7 @@ const Chat = () => {
       content: "Hey everyone! How's the project going?",
       timestamp: "10:30 AM",
       isOwn: false,
-      type: "text",
+      avatar: "JD",
     },
     {
       id: 2,
@@ -38,7 +21,7 @@ const Chat = () => {
       content: "Going great! Just finished the authentication module.",
       timestamp: "10:32 AM",
       isOwn: true,
-      type: "text",
+      avatar: "You",
     },
     {
       id: 3,
@@ -47,7 +30,7 @@ const Chat = () => {
         "Perfect! I've uploaded the design files to the group. Check them out when you can.",
       timestamp: "10:35 AM",
       isOwn: false,
-      type: "text",
+      avatar: "SW",
     },
     {
       id: 4,
@@ -55,7 +38,7 @@ const Chat = () => {
       content: "Thanks Sarah! The designs look amazing 🎨",
       timestamp: "10:38 AM",
       isOwn: true,
-      type: "text",
+      avatar: "You",
     },
     {
       id: 5,
@@ -64,25 +47,72 @@ const Chat = () => {
         "Should we schedule a call for tomorrow to discuss the next phase?",
       timestamp: "10:40 AM",
       isOwn: false,
-      type: "text",
+      avatar: "MC",
     },
   ]);
-  const [isTyping, setIsTyping] = useState(false);
+
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
 
   const messagesEndRef = useRef(null);
   const messageInputRef = useRef(null);
-  const fileInputRef = useRef(null);
 
-  const groupMembers = [
-    { name: "John Doe", status: "online", avatar: "JD" },
-    { name: "Sarah Wilson", status: "online", avatar: "SW" },
-    { name: "Mike Chen", status: "away", avatar: "MC" },
-    { name: "Emma Davis", status: "offline", avatar: "ED" },
-    { name: "Alex Turner", status: "online", avatar: "AT" },
+  // Mock group data - replace with actual data from Redux/API
+  const groupData = {
+    name: "Computer Science Study Group",
+    members: [
+      {
+        name: "John Doe",
+        status: "online",
+        avatar: "JD",
+        email: "john@example.com",
+      },
+      {
+        name: "Sarah Wilson",
+        status: "online",
+        avatar: "SW",
+        email: "sarah@example.com",
+      },
+      {
+        name: "Mike Chen",
+        status: "away",
+        avatar: "MC",
+        email: "mike@example.com",
+      },
+      {
+        name: "Emma Davis",
+        status: "offline",
+        avatar: "ED",
+        email: "emma@example.com",
+      },
+      {
+        name: "Alex Turner",
+        status: "online",
+        avatar: "AT",
+        email: "alex@example.com",
+      },
+    ],
+  };
+
+  const emojis = [
+    "😀",
+    "😂",
+    "😍",
+    "🤔",
+    "👍",
+    "👎",
+    "❤️",
+    "🔥",
+    "🎉",
+    "💯",
+    "👏",
+    "🙏",
+    "💪",
+    "🚀",
+    "⭐",
+    "✨",
   ];
 
   const scrollToBottom = () => {
@@ -104,7 +134,7 @@ const Chat = () => {
           minute: "2-digit",
         }),
         isOwn: true,
-        type: "text",
+        avatar: "You",
       };
       setMessages([...messages, newMessage]);
       setMessage("");
@@ -123,7 +153,7 @@ const Chat = () => {
             minute: "2-digit",
           }),
           isOwn: false,
-          type: "text",
+          avatar: "JD",
         };
         setMessages((prev) => [...prev, response]);
       }, 2000);
@@ -134,25 +164,6 @@ const Chat = () => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
-    }
-  };
-
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const newMessage = {
-        id: messages.length + 1,
-        sender: "You",
-        content: file.name,
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        isOwn: true,
-        type: "file",
-        fileType: file.type.startsWith("image/") ? "image" : "file",
-      };
-      setMessages([...messages, newMessage]);
     }
   };
 
@@ -169,6 +180,12 @@ const Chat = () => {
     }
   };
 
+  const filteredMessages = messages.filter(
+    (msg) =>
+      msg.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      msg.sender.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex">
       {/* Main Chat Area */}
@@ -177,6 +194,17 @@ const Chat = () => {
         <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {/* Back Button */}
+              <button
+                onClick={() => navigate("/home/chatmenu")}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors md:hidden"
+              >
+                <ArrowLeft
+                  size={20}
+                  className="text-gray-600 dark:text-slate-400"
+                />
+              </button>
+
               {/* Group Avatar */}
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                 <Users size={20} className="text-white" />
@@ -184,46 +212,38 @@ const Chat = () => {
 
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Study Group Chat
+                  {groupData.name}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-slate-400">
-                  {groupMembers.filter((m) => m.status === "online").length}{" "}
-                  online • {groupMembers.length} members
+                  {
+                    groupData.members.filter((m) => m.status === "online")
+                      .length
+                  }{" "}
+                  online • {groupData.members.length} members
                 </p>
               </div>
             </div>
 
             {/* Header Actions */}
             <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+              <div className="relative">
                 <Search
                   size={18}
-                  className="text-gray-600 dark:text-slate-400"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"
                 />
-              </button>
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                <Phone
-                  size={18}
-                  className="text-gray-600 dark:text-slate-400"
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search messages..."
+                  className="pl-10 pr-4 py-2 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 w-48 hidden md:block"
                 />
-              </button>
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                <Video
-                  size={18}
-                  className="text-gray-600 dark:text-slate-400"
-                />
-              </button>
+              </div>
               <button
                 onClick={() => setShowGroupInfo(!showGroupInfo)}
                 className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
               >
                 <Info size={18} className="text-gray-600 dark:text-slate-400" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                <MoreVertical
-                  size={18}
-                  className="text-gray-600 dark:text-slate-400"
-                />
               </button>
             </div>
           </div>
@@ -231,7 +251,7 @@ const Chat = () => {
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-slate-900">
-          {messages.map((msg) => (
+          {filteredMessages.map((msg) => (
             <div
               key={msg.id}
               className={`flex ${
@@ -241,10 +261,7 @@ const Chat = () => {
               {/* Avatar for others' messages */}
               {!msg.isOwn && (
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                  {msg.sender
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
+                  {msg.avatar}
                 </div>
               )}
 
@@ -264,30 +281,7 @@ const Chat = () => {
                       : "bg-white dark:bg-slate-700 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-600"
                   }`}
                 >
-                  {msg.type === "file" ? (
-                    <div className="flex items-center gap-2">
-                      {msg.fileType === "image" ? (
-                        <Image
-                          size={16}
-                          className={
-                            msg.isOwn ? "text-blue-100" : "text-blue-500"
-                          }
-                        />
-                      ) : (
-                        <File
-                          size={16}
-                          className={
-                            msg.isOwn
-                              ? "text-blue-100"
-                              : "text-gray-500 dark:text-slate-400"
-                          }
-                        />
-                      )}
-                      <span className="text-sm">{msg.content}</span>
-                    </div>
-                  ) : (
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  )}
+                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                 </div>
 
                 {/* Timestamp */}
@@ -336,27 +330,10 @@ const Chat = () => {
 
         {/* Message Input */}
         <div className="bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 p-4">
-          {/* Emoji Picker (simplified) */}
+          {/* Emoji Picker */}
           {showEmojiPicker && (
-            <div className="absolute bottom-20 left-4 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg p-4 grid grid-cols-8 gap-2">
-              {[
-                "😀",
-                "😂",
-                "😍",
-                "🤔",
-                "👍",
-                "👎",
-                "❤️",
-                "🔥",
-                "🎉",
-                "💯",
-                "👏",
-                "🙏",
-                "💪",
-                "🚀",
-                "⭐",
-                "✨",
-              ].map((emoji) => (
+            <div className="absolute bottom-20 left-4 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg p-4 grid grid-cols-8 gap-2 z-10">
+              {emojis.map((emoji) => (
                 <button
                   key={emoji}
                   onClick={() => {
@@ -372,29 +349,6 @@ const Chat = () => {
           )}
 
           <div className="flex items-end gap-3">
-            {/* File Upload */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleFileUpload}
-              className="hidden"
-              accept="image/*,video/*,.pdf,.doc,.docx,.txt"
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-            >
-              <Paperclip
-                size={20}
-                className="text-gray-600 dark:text-slate-400"
-              />
-            </button>
-
-            {/* Camera */}
-            <button className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-              <Camera size={20} className="text-gray-600 dark:text-slate-400" />
-            </button>
-
             {/* Message Input */}
             <div className="flex-1 relative">
               <textarea
@@ -423,18 +377,6 @@ const Chat = () => {
                 />
               </button>
             </div>
-
-            {/* Voice Recording */}
-            <button
-              onClick={() => setIsRecording(!isRecording)}
-              className={`p-2 rounded-lg transition-colors ${
-                isRecording
-                  ? "bg-red-500 text-white"
-                  : "hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-400"
-              }`}
-            >
-              {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
-            </button>
 
             {/* Send Button */}
             <button
@@ -471,40 +413,8 @@ const Chat = () => {
                 <Users size={32} className="text-white" />
               </div>
               <h4 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Study Group
+                {groupData.name}
               </h4>
-              <p className="text-sm text-gray-500 dark:text-slate-400">
-                Created on March 15, 2024
-              </p>
-            </div>
-
-            <div className="flex gap-2">
-              <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1">
-                <UserPlus size={16} />
-                Add Member
-              </button>
-              <button
-                onClick={() => setIsMuted(!isMuted)}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-              >
-                {isMuted ? (
-                  <VolumeX
-                    size={18}
-                    className="text-gray-600 dark:text-slate-400"
-                  />
-                ) : (
-                  <Volume2
-                    size={18}
-                    className="text-gray-600 dark:text-slate-400"
-                  />
-                )}
-              </button>
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                <Settings
-                  size={18}
-                  className="text-gray-600 dark:text-slate-400"
-                />
-              </button>
             </div>
           </div>
 
@@ -512,10 +422,10 @@ const Chat = () => {
           <div className="flex-1 overflow-y-auto">
             <div className="p-4">
               <h5 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-                Members ({groupMembers.length})
+                Members ({groupData.members.length})
               </h5>
               <div className="space-y-3">
-                {groupMembers.map((member, index) => (
+                {groupData.members.map((member, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <div className="relative">
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium">

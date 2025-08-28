@@ -11,16 +11,10 @@ const ChatMenu = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Get user's groups from different Redux states
-  const myGroups = useSelector((state) => state.myGroups.data);
-  const editorGroups = useSelector((state) => state.editorGroups?.data || []);
-  const userGroups = useSelector((state) => state.userGroups?.data || []);
-
   useEffect(() => {
     const fetchAllUserGroups = async () => {
       setIsLoading(true);
       try {
-        // Fetch all user groups from different endpoints
         const [myGroupsRes, editorGroupsRes, userGroupsRes] = await Promise.all(
           [
             JWTAxios.post("/group/getmygroups"),
@@ -31,7 +25,6 @@ const ChatMenu = () => {
 
         const allUserGroups = [];
 
-        // Add my groups with admin access
         if (myGroupsRes.data.success) {
           myGroupsRes.data.data.forEach((group) => {
             allUserGroups.push({
@@ -41,10 +34,8 @@ const ChatMenu = () => {
           });
         }
 
-        // Add editor groups with editor access
         if (editorGroupsRes.data.success) {
           editorGroupsRes.data.data.forEach((group) => {
-            // Avoid duplicates
             if (!allUserGroups.find((g) => g.id === group.id)) {
               allUserGroups.push({
                 ...group,
@@ -54,10 +45,8 @@ const ChatMenu = () => {
           });
         }
 
-        // Add user groups with member access
         if (userGroupsRes.data.success) {
           userGroupsRes.data.data.forEach((group) => {
-            // Avoid duplicates
             if (!allUserGroups.find((g) => g.id === group.id)) {
               allUserGroups.push({
                 ...group,

@@ -18,6 +18,7 @@ import Profile from "./screens/profile/Profile";
 import NoPage from "./screens/nopages/NoPage";
 import Chatmenu from "./screens/chatmenu/Chatmenu";
 import Chat from "./screens/chat/Chat";
+import Notification from "./screens/notification/Notification";
 
 const App = () => {
   const isLogedIn = useSelector((state) => state.user.isLogedIn);
@@ -71,8 +72,9 @@ const App = () => {
                 <Route path="profile" element={<Profile />} />
                 <Route path="about" element={<About />} />
                 <Route path="group" element={<Group />} />
-                <Route path="chatmenu" element={<Chatmenu />} />
-                <Route path="chat/:groupId" element={<Chat />} />
+                {/* <Route path="chatmenu" element={<Chatmenu />} />
+                <Route path="chat/:groupId" element={<Chat />} />*/}
+                <Route path="notification" element={<Notification />} />
               </Route>
             </>
           ) : (
