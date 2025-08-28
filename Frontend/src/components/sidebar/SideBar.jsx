@@ -123,7 +123,7 @@ const SideBar = () => {
               </li>
               <li>
                 <Link
-                  to="chat"
+                  to="chatmenu"
                   className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-purple-900/20 hover:text-white dark:hover:text-purple-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
                   onClick={() => setIsOpen(false)}
                 >

@@ -16,6 +16,7 @@ import EditorGroups from "./screens/editorGroups/EditorGroups";
 import UserGroups from "./screens/userGroups/UserGroups";
 import Profile from "./screens/profile/Profile";
 import NoPage from "./screens/nopages/NoPage";
+import Chatmenu from "./screens/chatmenu/Chatmenu";
 import Chat from "./screens/chat/Chat";
 
 const App = () => {
@@ -70,7 +71,8 @@ const App = () => {
                 <Route path="profile" element={<Profile />} />
                 <Route path="about" element={<About />} />
                 <Route path="group" element={<Group />} />
-                <Route path="chat" element={<Chat />} />
+                <Route path="chatmenu" element={<Chatmenu />} />
+                <Route path="chat/:groupId" element={<Chat />} />
               </Route>
             </>
           ) : (
