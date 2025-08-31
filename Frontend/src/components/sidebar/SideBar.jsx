@@ -14,9 +14,13 @@ import {
   MessageCircle,
 } from "lucide-react";
 import logo from "../../assets/logo/logo.jpg";
+import { useSelector } from "react-redux";
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const unviewedCount = useSelector(
+    (state) => state.Notification.unviewedCount
+  );
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -125,7 +129,7 @@ const SideBar = () => {
               <li>
                 <Link
                   to="notification"
-                  className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-purple-900/20 hover:text-white dark:hover:text-purple-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group"
+                  className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-purple-900/20 hover:text-white dark:hover:text-purple-400 text-blue-100 dark:text-slate-300 font-medium transition-all duration-200 group relative"
                   onClick={() => setIsOpen(false)}
                 >
                   <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -133,6 +137,11 @@ const SideBar = () => {
                   <span className="block sm:hidden md:hidden text-xs">
                     Notification
                   </span>
+                  {unviewedCount > 0 && (
+                    <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px]">
+                      {unviewedCount > 99 ? "99+" : unviewedCount}
+                    </div>
+                  )}
                 </Link>
               </li>
             </ul>

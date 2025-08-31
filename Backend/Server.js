@@ -11,6 +11,7 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import { createServer } from "http";
 import { initializeSocket } from "./socket/SocketServer.js";
+import notificationRouter from "./routes/Notification.route.js";
 
 const app = express();
 const server = createServer(app);
@@ -51,6 +52,8 @@ app.use("/api/note", noteRouter);
 app.use("/api/group", groupRouter);
 
 app.use("/api/auth", auth);
+
+app.use("/api/notification", notificationRouter);
 
 app.use("/api/other", other);
 

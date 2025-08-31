@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
 
 let io;
-const userSockets = new Map(); // userId -> socketId mapping
+const userSockets = new Map();
 
 export const initializeSocket = (server) => {
   io = new Server(server, {
