@@ -20,7 +20,7 @@ dotenv.config();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:3000", "http://localhost:5173"],
     credentials: true,
   })
 );
@@ -57,9 +57,9 @@ app.use("/api/notification", notificationRouter);
 
 app.use("/api/other", other);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, async () => {
+server.listen(PORT, "0.0.0.0", async () => {
   await connectDb();
   console.log("Server is running on http://localhost:" + PORT);
 });
