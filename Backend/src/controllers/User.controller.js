@@ -3,6 +3,8 @@ import Group from "../models/Group.model.js";
 import mongoose from "mongoose";
 import Note from "../models/Note.model.js";
 import bcrypt from "bcryptjs";
+import Notification from "../models/Notification.model.js";
+import { createNotification } from "./Notification.controler.js";
 
 export const searchUsers = async (req, res) => {
   try {
@@ -346,10 +348,41 @@ export const addToTheGroup = async (req, res) => {
         .json({ success: false, message: "User is already in this group" });
     }
 
+    // If private group, send notification to admin
     if (group.isPrivate) {
+      // Check if there's already a pending request
+      const existingNotification = await Notification.findOne({
+        recipient: group.admin._id,
+        sender: user._id,
+        type: "group_join_request",
+        "data.groupId": groupId,
+        actionTaken: false,
+      });
+
+      if (existingNotification) {
+        return res.status(400).json({
+          success: false,
+          message: "You already have a pending request for this group",
+        });
+      }
+
+      // Create notification for admin
+      await createNotification({
+        recipient: group.admin._id,
+        sender: user._id,
+        type: "group_join_request",
+        title: "New Group Join Request",
+        message: `${user.username} wants to join your private group "${group.name}"`,
+        data: {
+          groupId: group._id,
+          groupName: group.name,
+        },
+      });
+
       return res.status(200).json({
-        success: false,
-        message: "This is a private group.Wait admin aprove your request",
+        success: true,
+        message:
+          "Join request sent to group admin. You will be notified once approved.",
       });
     }
 

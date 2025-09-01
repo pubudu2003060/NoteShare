@@ -9,8 +9,12 @@ import auth from "./routes/Auth.routes.js";
 import other from "./routes/Other.routes.js";
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import { createServer } from "http";
+import { initializeSocket } from "./socket/SocketServer.js";
+import notificationRouter from "./routes/Notification.route.js";
 
 const app = express();
+const server = createServer(app);
 
 dotenv.config();
 
@@ -37,6 +41,10 @@ app.use(
 
 app.use(cookieParser());
 
+const io = initializeSocket(server);
+
+app.set("io", io);
+
 app.use("/api/user", userRouter);
 
 app.use("/api/note", noteRouter);
@@ -45,11 +53,13 @@ app.use("/api/group", groupRouter);
 
 app.use("/api/auth", auth);
 
+app.use("/api/notification", notificationRouter);
+
 app.use("/api/other", other);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   await connectDb();
   console.log("Server is running on http://localhost:" + PORT);
 });

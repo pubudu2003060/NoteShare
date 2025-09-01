@@ -4,12 +4,23 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "./Cloudinary.js";
 
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "noteapp_uploads",
-    allowed_formats: ["jpg", "jpeg", "png", "pdf", "mp4", "mkv"],
-    resource_type: "auto",
-    public_id: (req, file) => `${file.fieldname}-${Date.now()}`,
+  cloudinary,
+  params: (req, file) => {
+    const fileType = file.mimetype.split("/")[0];
+    if (fileType === "application") {
+      // PDFs or other docs
+      return {
+        folder: "noteapp_uploads",
+        resource_type: "raw",
+        public_id: `${file.fieldname}-${Date.now()}`,
+      };
+    }
+    // Images or videos
+    return {
+      folder: "noteapp_uploads",
+      resource_type: "auto",
+      public_id: `${file.fieldname}-${Date.now()}`,
+    };
   },
 });
 
