@@ -1,0 +1,10 @@
+| Use Case               | Light Mode             | Dark Mode              | Description                             |
+| ---------------------- | ---------------------- | ---------------------- | --------------------------------------- |
+| **Primary**            | `#2563eb` (blue-600)   | `#3b82f6` (blue-500)   | Main accent color (buttons, highlights) |
+| **Secondary**          | `#64748b` (slate-500)  | `#94a3b8` (slate-400)  | Secondary elements (tabs, icons)        |
+| **Background**         | `#f9fafb` (gray-50)    | `#0f172a` (slate-900)  | App background                          |
+| **Surface/Card**       | `#ffffff`              | `#1e293b` (slate-800)  | Cards, input fields                     |
+| **Text - Primary**     | `#0f172a` (slate-900)  | `#f1f5f9` (gray-100)   | Headings, main text                     |
+| **Text - Secondary**   | `#475569` (slate-700)  | `#cbd5e1` (slate-300)  | Descriptions, subtitles                 |
+| **Success (optional)** | `#10b981` (green-500)  | `#22c55e` (green-400)  | For completed notes, status indicators  |
+| **Warning (optional)** | `#facc15` (yellow-400) | `#eab308` (yellow-500) | For alerts, unsaved status              |
