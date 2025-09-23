@@ -1,7 +1,8 @@
 import axios from "axios";
+import axiosBaseURL from import.meta.env.VITE_AXIOS_BASE_URL
 
 export const freeAxios = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: axiosBaseURL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -10,7 +11,7 @@ export const freeAxios = axios.create({
 });
 
 export const JWTAxios = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: axiosBaseURL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -19,7 +20,7 @@ export const JWTAxios = axios.create({
 });
 
 export const longJWTAxios = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: axiosBaseURL,
   timeout: 3000000,
   headers: {
     "Content-Type": "application/json",
