@@ -80,6 +80,9 @@ CLOUD_API_SECRET=your-cloudinary-api-secret
 GOOGLE_CLIENT_ID=your-google-oauth-client-id
 GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
 GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/googlesignin/callback
+
+SESSION_SECRET = example
+SESSION_SECURE =  false
 ```
 
 > ⚠️ **Security Note**: Never commit your `.env` file to version control. Add it to your `.gitignore` file.

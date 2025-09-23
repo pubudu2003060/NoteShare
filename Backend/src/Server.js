@@ -20,7 +20,11 @@ dotenv.config();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5173"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://note-share-frontend.vercel.app",
+    ],
     credentials: true,
   })
 );
@@ -29,11 +33,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   session({
-    secret: "throwaway-passport-bridge",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: "false",
+      secure: process.env.SESSION_SECURE,
       sameSite: "lax",
     },
   })
@@ -44,6 +48,10 @@ app.use(cookieParser());
 const io = initializeSocket(server);
 
 app.set("io", io);
+
+app.get("/", (req, res) => {
+  res.send("Api work");
+});
 
 app.use("/api/user", userRouter);
 
@@ -59,7 +67,13 @@ app.use("/api/other", other);
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, "0.0.0.0", async () => {
-  await connectDb();
-  console.log("Server is running on http://localhost:" + PORT);
-});
+connectDb()
+  .then(() => {
+    server.listen(PORT, "0.0.0.0", () => {
+      console.log("Server is running on http://localhost:" + PORT);
+    });
+  })
+  .catch((error) => {
+    console.error("Failed to start server due to DB connection error:", error);
+    process.exit(1);
+  });
