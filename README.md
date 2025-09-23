@@ -58,6 +58,12 @@ Before you begin, ensure you have the following installed and set up:
 
 ### Configuration
 
+Create a `.env` file in the **frontend** folder with the following variables:
+
+```env
+VITE_AXIOS_BASE_URL = url
+```
+
 Create a `.env` file in the **backend** folder with the following variables:
 
 ```env

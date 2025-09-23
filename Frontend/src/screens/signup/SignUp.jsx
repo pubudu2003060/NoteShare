@@ -7,7 +7,7 @@ import { freeAxios } from "../../api/Axios";
 import { useDispatch } from "react-redux";
 import { logedIn } from "../../state/user/UserSlice";
 import googleimage from "../../assets/logo/google logo.png";
-import axiosBaseURL from import.meta.env.VITE_AXIOS_BASE_URL
+const axiosBaseURL = import.meta.env.VITE_AXIOS_BASE_URL;
 
 const SignUp = () => {
   const dispatch = useDispatch();
@@ -110,7 +110,7 @@ const SignUp = () => {
   };
 
   const googleSignIn = () => {
-    window.location.href = axiosBaseURL+"/auth/googlesignin";
+    window.location.href = axiosBaseURL + "/auth/googlesignin";
   };
 
   return (

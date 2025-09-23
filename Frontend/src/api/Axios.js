@@ -1,5 +1,5 @@
 import axios from "axios";
-import axiosBaseURL from import.meta.env.VITE_AXIOS_BASE_URL
+const axiosBaseURL = import.meta.env.VITE_AXIOS_BASE_URL;
 
 export const freeAxios = axios.create({
   baseURL: axiosBaseURL,
