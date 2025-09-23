@@ -87,6 +87,8 @@ GOOGLE_CLIENT_ID=your-google-oauth-client-id
 GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
 GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/googlesignin/callback
 
+FRONTEND_URL = url
+
 SESSION_SECRET = example
 SESSION_SECURE =  false
 ```
