@@ -2,6 +2,7 @@ import User from "../models/User.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import passport from "../config/passport.js";
+const frontEndURL = process.env.FRONTEND_URL;
 
 export const signUpUser = async (req, res) => {
   try {
@@ -140,7 +141,7 @@ export const handleGoogleLogin = async (req, res) => {
     const user = req.user;
 
     if (!user) {
-      res.redirect(`http://localhost:5173/signin?status=fail`);
+      res.redirect(`${frontEndURL}/signin?status=fail`);
     }
 
     const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -163,14 +164,14 @@ export const handleGoogleLogin = async (req, res) => {
     });
 
     res.redirect(
-      `http://localhost:5173/signin?status=success&&accessToken=${accessToken}`
+      `${frontEndURL}/signin?status=success&&accessToken=${accessToken}`
     );
   } catch (error) {
     console.log("Google login error: " + error.message);
-    res.redirect(`http://localhost:5173/signin?status=fail`);
+    res.redirect(`${frontEndURL}/signin?status=fail`);
   }
 };
 
 export const handleGoogleFailure = async (req, res) => {
-  res.redirect(`http://localhost:5173/signin?status=fail`);
+  res.redirect(`${frontEndURL}/signin?status=fail`);
 };
